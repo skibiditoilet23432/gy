@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Layer4 - DSTAT Enhanced</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        /* Animated gradient background */
+        background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+        background-size: 600% 600%;
+        animation: gradientBG 20s ease infinite;
+        color: #e0e0e0;
+        font-family: 'Segoe UI', sans-serif;
+      }
+      @keyframes gradientBG {
+        0%{background-position:0% 50%}
+        50%{background-position:100% 50%}
+        100%{background-position:0% 50%}
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      #info {
+        margin-top: 1.5em;
+        text-align: center;
+        font-size: 1.5rem;
+        text-shadow: 0 0 8px rgba(0,255,255,0.7);
+      }
+      #container-wrapper {
+        width: 90%;
+        max-width: 1200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #top-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .side-container {
+        position: relative;
+        width: 23%;
+        background-color: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        border-radius: 12px;
+        transition: transform 0.3s;
+      }
+      .side-container:hover {
+        transform: translateY(-5px) scale(1.02);
+      }
+      .side-container i {
+        color: #00f2fe;
+        margin-left: 20px;
+        font-size: 42px;
+      }
+      .side-container .data {
+        font-size: 22px;
+        font-weight: bold;
+        position: absolute;
+        right: 20px;
+        top: 36px;
+        color: #fff;
+      }
+      .side-container span:last-child {
+        position: absolute;
+        bottom: 14px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        color: #fff;
+        font-size: 18px;
+      }
+      #chart-container {
+        width: 100%;
+        padding: 1.5em;
+        background-color: rgba(0,0,0,0.2);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+      }
+      #chart {
+        width: 100%;
+        height: 450px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 id="info">📶 Real-Time DSTAT Dashboard</h2>
+    <div id="container-wrapper">
+      <div id="top-container">
+        <div class="side-container" id="left-container">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="data" id="peak-pps">--</span>
+          <span>Peak PPS</span>
+        </div>
+        <div class="side-container" id="left-container-pps">
+          <i class="fas fa-chart-pie"></i>
+          <span class="data" id="total-pps">--</span>
+          <span>Overall PPS</span>
+        </div>
+        <div class="side-container" id="center-container">
+          <i class="fas fa-wave-square"></i>
+          <span class="data" id="peak-data">--</span>
+          <span>Peak Bandwidth</span>
+        </div>
+        <div class="side-container" id="right-container">
+          <i class="fas fa-stream"></i>
+          <span class="data" id="total-data">--</span>
+          <span>Overall Bandwidth</span>
+        </div>
+      </div>
+      <div id="chart-container">
+        <div id="chart"></div>
+      </div>
+    </div>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script>
+      window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const data = JSON.parse(params.get('data') || '[]');
+        const pps = JSON.parse(params.get('pps') || '[]');
+        const totalRequests = data.reduce((a,b)=>a+b,0);
+        const peakRequests = Math.max(...data,0);
+        const totalPPS = pps.reduce((a,b)=>a+b,0);
+        const peakPPS = Math.max(...pps,0);
+        document.getElementById('peak-pps').textContent = formatPPS(peakPPS);
+        document.getElementById('total-pps').textContent = formatPPS(totalPPS);
+        document.getElementById('peak-data').textContent = formatBW(peakRequests);
+        document.getElementById('total-data').textContent = formatData(totalRequests);
+        Highcharts.chart('chart', {
+          chart: { type: 'areaspline', backgroundColor: 'transparent', animation: true },
+          title: { text: '' },
+          xAxis: { categories: data.map((_,i)=>i), labels: { style: { color: '#fff' } } },
+          yAxis: [{
+            title: { text: 'Bandwidth', style: { color: '#00f2fe' } },
+            labels: { style: { color: '#00f2fe' } },
+            gridLineColor: 'rgba(255,255,255,0.1)'
+          },{
+            title: { text: 'PPS', style: { color: '#ffe140' } },
+            labels: { style: { color: '#ffe140' } },
+            opposite: true,
+            gridLineWidth: 0
+          }],
+          tooltip: { shared: true, backgroundColor: 'rgba(0,0,0,0.8)', style: { color: '#fff' } },
+          plotOptions: {
+            areaspline: {
+              fillOpacity: 0.3,
+              marker: { enabled: false },
+              lineWidth: 3,
+              states: { hover: { lineWidth: 4 } }
+            }
+          },
+          series: [{
+            name: 'Bandwidth', data: data,
+            color: { linearGradient: [0,0,250,0], stops: [[0,'#4facfe'], [1,'#00f2fe']] }
+          },{
+            name: 'PPS', data: pps, yAxis: 1,
+            color: { linearGradient: [0,0,250,0], stops: [[0,'#fee140'], [1,'#fa709a']] }
+          }],
+          credits: { enabled: false }
+        });
+        function formatBW(v){return (v/1e6).toFixed(2)+' Mb/s';}
+        function formatData(v){return (v/1e9).toFixed(2)+' Gb';}
+        function formatPPS(v){return (v/1e3).toFixed(2)+' K PPS';}
+      };
+    </script>
+  </body>
+</html>
