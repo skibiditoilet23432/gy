@@ -2,181 +2,343 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Layer4 - DSTAT Enhanced</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.3.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+
+    <title>Layer4 - DSTAT</title>
     <style>
-      html, body {
+      html,
+      body {
         height: 100%;
         margin: 0;
-        /* Animated gradient background */
-        background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
-        background-size: 600% 600%;
-        animation: gradientBG 20s ease infinite;
+        background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+        background-size: cover;
         color: #e0e0e0;
-        font-family: 'Segoe UI', sans-serif;
       }
-      @keyframes gradientBG {
-        0%{background-position:0% 50%}
-        50%{background-position:100% 50%}
-        100%{background-position:0% 50%}
-      }
+
       body {
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
       }
-      #info {
-        margin-top: 1.5em;
-        text-align: center;
-        font-size: 1.5rem;
-        text-shadow: 0 0 8px rgba(0,255,255,0.7);
-      }
-      #container-wrapper {
-        width: 90%;
-        max-width: 1200px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      #top-container {
-        display: flex;
+
+      body > div {
         width: 100%;
-        justify-content: space-between;
-        margin-bottom: 20px;
       }
-      .side-container {
-        position: relative;
-        width: 23%;
-        background-color: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        height: 120px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        border-radius: 12px;
-        transition: transform 0.3s;
-      }
-      .side-container:hover {
-        transform: translateY(-5px) scale(1.02);
-      }
-      .side-container i {
-        color: #00f2fe;
-        margin-left: 20px;
-        font-size: 42px;
-      }
-      .side-container .data {
-        font-size: 22px;
-        font-weight: bold;
-        position: absolute;
-        right: 20px;
-        top: 36px;
-        color: #fff;
-      }
-      .side-container span:last-child {
-        position: absolute;
-        bottom: 14px;
-        width: 100%;
-        text-align: center;
-        font-weight: bold;
-        color: #fff;
-        font-size: 18px;
-      }
-      #chart-container {
-        width: 100%;
-        padding: 1.5em;
-        background-color: rgba(0,0,0,0.2);
-        backdrop-filter: blur(20px);
-        border-radius: 12px;
-        box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-      }
+
       #chart {
         width: 100%;
-        height: 450px;
+        margin: auto;
+      }
+
+      #info {
+        margin-top: 2em;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      #chart-container {
+        width: 80%;
+        margin: 2em auto;
+        padding: 1em;
+        background-color: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(30px);
+        border-radius: 5px; 
+        box-shadow: 0 0 10px #ffffff;
+
+      }
+
+      #container-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+      }
+
+      #top-container {
+          display: flex;
+          width: 80%; 
+          justify-content: space-between;
+          margin-bottom: 20px; 
+      }
+
+      .side-container span, #middle-container span {
+          position: absolute;
+          bottom: 17px; 
+          width: 100%;
+          text-align: center;
+          font-weight: bold; 
+          color: #000000; 
+          font-size: 20px;
+          font-family: sans-serif;
+      }
+
+       #middle-container {
+          position: relative; 
+          width: calc((100% - 90px) / 4);
+          background-color: #212121;
+          height: 115px;
+          display: flex;
+          align-items: flex-end; 
+          justify-content: center;
+      }
+      .side-container {
+          position: relative;
+          width: calc((100% - 50px) / 4);
+          background-color: rgba(255, 255, 255, 0.4);
+          box-shadow: 0 0 10px #ffffff;
+          height: 115px;
+          display: flex;
+          align-items: center; 
+          justify-content: flex-start; 
+          border-radius: 5px; 
+
+      }
+
+      .side-container i {
+          color: #000000; 
+          margin-left: 22px; 
+          margin-right: 5px; 
+          font-size: 38px; 
+          position: relative; 
+          top: -15px; 
+      }
+
+      .side-container .data {
+        font-size: 20px; 
+        color: #000000; 
+        font-family: sans-serif; 
+        font-weight: bold; 
+        position: absolute; 
+        right: 14px; 
+        top: 36px; 
+        white-space: nowrap;
+        text-align: right;
       }
     </style>
   </head>
+
   <body>
-    <h2 id="info">📶 Real-Time DSTAT Dashboard</h2>
-    <div id="container-wrapper">
-      <div id="top-container">
-        <div class="side-container" id="left-container">
-          <i class="fas fa-tachometer-alt"></i>
-          <span class="data" id="peak-pps">--</span>
-          <span>Peak PPS</span>
+    <div>
+      <h2 id="info"></h2>
+      <div id="container-wrapper">
+        <div id="top-container">
+          <div class="side-container" id="left-container">
+            <i class="fas fa-chart-line"></i>
+            <span class="data" id="peak-pps">Loading...</span>
+            <span>Peak PPS</span>
+          </div>
+
+          <div class="side-container" id="left-container-pps">
+            <i class="fa-solid fa-dice-d20"></i>
+            <span class="data" id="total-pps">Loading...</span>
+            <span>Overall PPS</span>
+          </div>
+
+          <div class="side-container" id="center-container">
+            <i class="fas fa-chart-line"></i>
+            <span class="data" id="peak-data">Loading...</span>
+            <span>Peak Bandwidth</span>
+          </div>
+
+          <div class="side-container" id="right-container">
+            <i class="fa-solid fa-dice-d20"></i>
+            <span class="data" id="total-data">Loading...</span>
+            <span>Overall Bandwidth</span>
+          </div>
         </div>
-        <div class="side-container" id="left-container-pps">
-          <i class="fas fa-chart-pie"></i>
-          <span class="data" id="total-pps">--</span>
-          <span>Overall PPS</span>
-        </div>
-        <div class="side-container" id="center-container">
-          <i class="fas fa-wave-square"></i>
-          <span class="data" id="peak-data">--</span>
-          <span>Peak Bandwidth</span>
-        </div>
-        <div class="side-container" id="right-container">
-          <i class="fas fa-stream"></i>
-          <span class="data" id="total-data">--</span>
-          <span>Overall Bandwidth</span>
+
+        <div id="chart-container">
+          <div id="chart"></div>
         </div>
       </div>
-      <div id="chart-container">
-        <div id="chart"></div>
-      </div>
+
     </div>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script>
       window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        const data = JSON.parse(params.get('data') || '[]');
-        const pps = JSON.parse(params.get('pps') || '[]');
-        const totalRequests = data.reduce((a,b)=>a+b,0);
-        const peakRequests = Math.max(...data,0);
-        const totalPPS = pps.reduce((a,b)=>a+b,0);
-        const peakPPS = Math.max(...pps,0);
-        document.getElementById('peak-pps').textContent = formatPPS(peakPPS);
-        document.getElementById('total-pps').textContent = formatPPS(totalPPS);
-        document.getElementById('peak-data').textContent = formatBW(peakRequests);
-        document.getElementById('total-data').textContent = formatData(totalRequests);
-        Highcharts.chart('chart', {
-          chart: { type: 'areaspline', backgroundColor: 'transparent', animation: true },
-          title: { text: '' },
-          xAxis: { categories: data.map((_,i)=>i), labels: { style: { color: '#fff' } } },
-          yAxis: [{
-            title: { text: 'Bandwidth', style: { color: '#00f2fe' } },
-            labels: { style: { color: '#00f2fe' } },
-            gridLineColor: 'rgba(255,255,255,0.1)'
-          },{
-            title: { text: 'PPS', style: { color: '#ffe140' } },
-            labels: { style: { color: '#ffe140' } },
-            opposite: true,
-            gridLineWidth: 0
-          }],
-          tooltip: { shared: true, backgroundColor: 'rgba(0,0,0,0.8)', style: { color: '#fff' } },
-          plotOptions: {
-            areaspline: {
-              fillOpacity: 0.3,
-              marker: { enabled: false },
-              lineWidth: 3,
-              states: { hover: { lineWidth: 4 } }
+        let info = document.getElementById("info");
+        const queryParams = new URLSearchParams(window.location.search);
+        const dataString = queryParams.get('data');
+        const ppsString = queryParams.get('pps'); 
+        const user = queryParams.get('user'); 
+        let data = [];
+        let pps = [];
+
+        if (dataString) {
+          try {
+            data = JSON.parse(dataString);
+          } catch(e) {
+            console.error('Error parsing data query to array', e);
+          }
+        }
+
+        if (ppsString) {
+          try {
+            pps = JSON.parse(ppsString);
+          } catch(e) {
+            console.error('Error parsing pps query to array', e);
+          }
+        }
+
+        const totalRequests = data.reduce((acc, curr) => acc + curr, 0);
+        const peakRequests = Math.max(...data);
+        const averageRequests = (totalRequests / data.length) || 0; 
+
+        const totalPPS = pps.reduce((acc, curr) => acc + curr, 0);
+        const peakPPS = Math.max(...pps);
+        
+
+        function formatNumber(kbs) {
+            let units = ["Kb/s", "Mb/s", "Gb/s", "Tb/s"]; 
+            let index = 0; 
+
+            while (kbs >= 1000 && index < units.length - 1) {
+                kbs /= 1000;
+                index++;
+            }
+            return kbs.toFixed(1).replace(/\.00$/, '') + " " + units[index];
+        }
+
+        function formatNumber2(kbs) {
+            let units = ["Kb", "Mb", "Gb", "Tb"];  
+            let index = 0; 
+
+            while (kbs >= 1000 && index < units.length - 1) {
+                kbs /= 1000;
+                index++;
+            }
+            return kbs.toFixed(1).replace(/\.00$/, '') + " " + units[index];
+        }
+
+        function formatNumberPPS(value) {
+            let units = ["", "K", "M", "T"]; 
+            let index = 0; 
+
+            while (value >= 1000 && index < units.length - 1) {
+                value /= 1000;
+                index++;
+            }
+            return value.toFixed(2).replace(/\.00$/, '') + " " + units[index];
+        }
+
+
+        function getYAxisUnit(data) {
+            let maxData = Math.max(...data); 
+            let units = ["Kb", "Mb", "Gb", "Tb"];
+            let unitIndex = 0;
+
+            while (maxData >= 1000 && unitIndex < units.length - 1) {
+                maxData /= 1000;
+                unitIndex++;
+            }
+            return units[unitIndex];
+        }
+
+        function formatYAxisLabel(value) {
+            if (value < 1000) {
+                return value + ' Kb/s';
+            } else if (value < 1000 * 1000) {
+                return (value / 1000).toFixed(1) + ' Mb/s';
+            } else if (value < 1000 * 1000 * 1000) {
+                return (value / (1000 * 1000)).toFixed(1) + ' Gb/s';
+            } else {
+                return (value / (1000 * 1000 * 1000)).toFixed(1) + ' Tb/s';
+            }
+        }
+
+        document.getElementById('left-container').querySelector('.data').textContent = formatNumber(Math.round(averageRequests));
+        document.getElementById('center-container').querySelector('.data').textContent = formatNumber(peakRequests);
+        document.getElementById('right-container').querySelector('.data').textContent = formatNumber2(totalRequests);
+
+        document.getElementById('left-container-pps').querySelector('.data').textContent = formatNumberPPS(Math.round(totalPPS));
+        document.getElementById('left-container').querySelector('.data').textContent = formatNumberPPS(peakPPS);
+
+        let yAxisUnit = getYAxisUnit(data);
+
+        let chart = Highcharts.chart('chart', {
+          exporting: {
+            enabled: false,
+          },
+          chart: {
+            type: 'spline',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+            animation: false,
+          },
+          title: {
+            text: 'DSTAT EUIS',
+            style: {
+              color: '#000000', 
             }
           },
-          series: [{
-            name: 'Bandwidth', data: data,
-            color: { linearGradient: [0,0,250,0], stops: [[0,'#4facfe'], [1,'#00f2fe']] }
-          },{
-            name: 'PPS', data: pps, yAxis: 1,
-            color: { linearGradient: [0,0,250,0], stops: [[0,'#fee140'], [1,'#fa709a']] }
+          xAxis: {
+            labels: {
+              style: {
+                color: '#000000',
+              },
+            },
+            gridLineWidth: 1,  
+            gridLineColor: '#444' 
+          },
+          yAxis: [{
+              title: {
+                  text: 'Bandwidth',
+                  style: { color: '#000000', fontWeight: 'bold' }
+              },
+              labels: {
+                  style: { color: '#000000', fontWeight: 'bold'},
+                  formatter: function () {
+                      return formatYAxisLabel(this.value);
+                  }
+              },
+              gridLineWidth: 1,
+              gridLineColor: '#444'
+          }, {
+              title: {
+                  text: 'PPS',
+                  style: { color: '#000000', fontWeight: 'bold'}
+              },
+              labels: {
+                  style: { color: '#000000', fontWeight: 'bold'},
+                  formatter: function () {
+                      return formatNumberPPS(this.value);
+                  }
+              },
+              opposite: true,  
+              gridLineWidth: 1,
+              gridLineColor: "ffffff"
           }],
-          credits: { enabled: false }
+          series: [{
+            name: 'Incoming Bandwidth (Bypassed)',
+            data: data,
+            color: 'rgba(102, 158, 84, 0.2)',
+            lineColor: '#00f2fe',   
+            lineWidth: 4,
+            animation: false,
+            yAxis: 0
+          }, {
+            name: 'Packets Per Second (PPS)',
+            data: pps,
+            type: 'spline', 
+            color: 'rgba(255, 99, 71, 0.2)',
+            lineColor: '#fee140',
+            lineWidth: 4,
+            animation: false,
+            yAxis: 1
+          }],
+          legend: {
+            itemStyle: {
+              color: '#000000',
+              fontWeight: 'bold'  // Làm chữ đậm
+            }
+          },
+          credits: {
+            enabled: false,
+          }
         });
-        function formatBW(v){return (v/1e6).toFixed(2)+' Mb/s';}
-        function formatData(v){return (v/1e9).toFixed(2)+' Gb';}
-        function formatPPS(v){return (v/1e3).toFixed(2)+' K PPS';}
       };
     </script>
   </body>
