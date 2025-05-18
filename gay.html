@@ -169,14 +169,15 @@
       const avg = (total / data.length) || 0;
 
       const format = n => {
+        n = Math.floor(n); // Làm tròn xuống số nguyên
         if (n < 1000) return n;
         const suffix = ['k', 'M', 'B'];
         let i = 0;
         while (n >= 1000 && i < suffix.length) {
-          n /= 1000;
+          n = Math.floor(n / 1000);
           i++;
         }
-        return n.toFixed(1).replace(/\.0$/, '') + suffix[i - 1];
+        return n + suffix[i - 1];
       };
 
       document.getElementById('avg-data').textContent = format(avg);
