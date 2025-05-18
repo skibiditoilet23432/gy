@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Layer7 - DSTAT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://i.imgur.com/QK0fmb3.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    #dashboard {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      flex: 1;
+      min-width: 250px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-box i {
+      font-size: 32px;
+      color: #2979ff;
+      margin-bottom: 10px;
+    }
+
+    .stat-box .data {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2979ff;
+    }
+
+    .stat-box .label {
+      margin-top: 8px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    #chart-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(41, 121, 255, 0.2);
+    }
+
+    #chart {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="dashboard">
+    <div class="stats">
+      <div class="stat-box">
+        <i class="fas fa-chart-area"></i>
+        <div class="data" id="avg-data">Loading...</div>
+        <div class="label">Average Requests</div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-chart-line"></i>
+        <div class="data" id="peak-data">Loading...</div>
+        <div class="label">Peak Requests</div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-dice-d20"></i>
+        <div class="data" id="total-data">Loading...</div>
+        <div class="label">Overall Requests</div>
+      </div>
+    </div>
+
+    <div id="chart-container">
+      <div id="chart"></div>
+    </div>
+  </div>
+
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script>
+    window.onload = () => {
+      const queryParams = new URLSearchParams(window.location.search);
+      const dataString = queryParams.get('data');
+      let data = [];
+
+      if (dataString) {
+        try {
+          data = JSON.parse(dataString);
+        } catch (e) {
+          console.error('Invalid data:', e);
+        }
+      }
+
+      const total = data.reduce((a, b) => a + b, 0);
+      const peak = Math.max(...data);
+      const avg = (total / data.length) || 0;
+
+      const format = n => {
+        if (n < 1000) return n;
+        const suffix = ['k', 'M', 'B'];
+        let i = 0;
+        while (n >= 1000 && i < suffix.length) {
+          n /= 1000;
+          i++;
+        }
+        return n.toFixed(1).replace(/\.0$/, '') + suffix[i - 1];
+      };
+
+      document.getElementById('avg-data').textContent = format(avg);
+      document.getElementById('peak-data').textContent = format(peak);
+      document.getElementById('total-data').textContent = format(total);
+
+      Highcharts.chart('chart', {
+        chart: {
+          type: 'spline',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          style: {
+            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
+          }
+        },
+        title: {
+          text: 'AIKO DSTAT',
+          style: {
+            color: '#1a237e',
+            fontSize: '20px',
+            fontWeight: 'bold'
+          }
+        },
+        xAxis: {
+          crosshair: true,
+          gridLineColor: '#e3f2fd',
+          labels: {
+            style: {
+              color: '#1565c0',
+              fontWeight: 'bold'
+            }
+          }
+        },
+        yAxis: {
+          gridLineColor: '#e3f2fd',
+          title: { text: '' },
+          labels: {
+            style: {
+              color: '#1565c0'
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#ffffff',
+          borderColor: '#2979ff',
+          borderRadius: 8,
+          shadow: true,
+          style: {
+            color: '#000000',
+            fontWeight: '500'
+          },
+          valueSuffix: ' req/s'
+        },
+        legend: {
+          enabled: false
+        },
+        series: [{
+          name: 'Requests/sec',
+          data: data,
+          color: {
+            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 0 },
+            stops: [
+              [0, '#64b5f6'],
+              [1, '#1e88e5']
+            ]
+          },
+          lineWidth: 4,
+          marker: {
+            enabled: true,
+            radius: 5,
+            fillColor: '#ffffff',
+            lineWidth: 2,
+            lineColor: '#2979ff'
+          },
+          shadow: true
+        }],
+        credits: {
+          enabled: false
+        }
+      });
+    };
+  </script>
+</body>
+</html>
