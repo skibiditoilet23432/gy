@@ -47,7 +47,6 @@
       text-align: center;
     }
 
-    /* Container cho icon và số liệu nằm hàng ngang */
     .stat-box .data-container {
       display: flex;
       align-items: center;
@@ -73,29 +72,37 @@
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 0 30px rgba(41, 121, 255, 0.2);
+      position: relative;
+    }
+
+    #req-per-sec-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 18px;
+      color: #2979ff;
+      font-weight: 600;
+      user-select: none;
+      margin-bottom: 8px;
+    }
+
+    #req-per-sec-label i {
+      font-size: 22px;
+    }
+
+    #chart-title {
+      text-align: center;
+      color: #1a237e;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 0 20px 0;
+      user-select: none;
     }
 
     #chart {
       height: 400px;
       width: 100%;
-    }
-
-    /* Phần mới cho Requests per second dưới biểu đồ */
-    #req-per-sec {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 20px;
-      color: #2979ff;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    #req-per-sec i {
-      font-size: 24px;
-      color: #2979ff;
     }
   </style>
 </head>
@@ -126,13 +133,13 @@
     </div>
 
     <div id="chart-container">
-      <div id="chart"></div>
-    </div>
+      <div id="req-per-sec-label">
+        <i class="fas fa-tachometer-alt"></i> req/s
+      </div>
 
-    <!-- Phần hiển thị Requests per second với icon -->
-    <div id="req-per-sec">
-      <i class="fas fa-tachometer-alt"></i>
-      <span id="req-per-sec-value">Loading...</span> req/s
+      <div id="chart-title">AIKO DSTAT</div>
+
+      <div id="chart"></div>
     </div>
   </div>
 
@@ -170,9 +177,6 @@
       document.getElementById('peak-data').textContent = format(peak);
       document.getElementById('total-data').textContent = format(total);
 
-      // Cập nhật phần Requests per second dưới biểu đồ
-      document.getElementById('req-per-sec-value').textContent = avg.toFixed(1);
-
       Highcharts.chart('chart', {
         chart: {
           type: 'spline',
@@ -182,12 +186,7 @@
           }
         },
         title: {
-          text: 'AIKO DSTAT',
-          style: {
-            color: '#1a237e',
-            fontSize: '20px',
-            fontWeight: 'bold'
-          }
+          text: '', // Ẩn tiêu đề mặc định của Highcharts
         },
         xAxis: {
           crosshair: true,
