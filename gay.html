@@ -40,24 +40,30 @@
       border: 1px solid #e0e0e0;
       border-radius: 15px;
       padding: 20px;
-      text-align: center;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    .stat-box i {
-      font-size: 32px;
+    /* Container cho icon và số liệu nằm hàng ngang */
+    .stat-box .data-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: bold;
       color: #2979ff;
       margin-bottom: 10px;
     }
 
-    .stat-box .data {
-      font-size: 28px;
-      font-weight: bold;
+    .stat-box .data-container i {
+      font-size: 32px;
       color: #2979ff;
     }
 
     .stat-box .label {
-      margin-top: 8px;
       color: #555;
       font-size: 14px;
     }
@@ -73,30 +79,60 @@
       height: 400px;
       width: 100%;
     }
+
+    /* Phần mới cho Requests per second dưới biểu đồ */
+    #req-per-sec {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 20px;
+      color: #2979ff;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #req-per-sec i {
+      font-size: 24px;
+      color: #2979ff;
+    }
   </style>
 </head>
 <body>
   <div id="dashboard">
     <div class="stats">
       <div class="stat-box">
-        <i class="fas fa-chart-area"></i>
-        <div class="data" id="avg-data">Loading...</div>
+        <div class="data-container">
+          <i class="fas fa-chart-area"></i>
+          <div id="avg-data">Loading...</div>
+        </div>
         <div class="label">Average Requests</div>
       </div>
       <div class="stat-box">
-        <i class="fas fa-chart-line"></i>
-        <div class="data" id="peak-data">Loading...</div>
+        <div class="data-container">
+          <i class="fas fa-chart-line"></i>
+          <div id="peak-data">Loading...</div>
+        </div>
         <div class="label">Peak Requests</div>
       </div>
       <div class="stat-box">
-        <i class="fas fa-dice-d20"></i>
-        <div class="data" id="total-data">Loading...</div>
+        <div class="data-container">
+          <i class="fas fa-dice-d20"></i>
+          <div id="total-data">Loading...</div>
+        </div>
         <div class="label">Overall Requests</div>
       </div>
     </div>
 
     <div id="chart-container">
       <div id="chart"></div>
+    </div>
+
+    <!-- Phần hiển thị Requests per second với icon -->
+    <div id="req-per-sec">
+      <i class="fas fa-tachometer-alt"></i>
+      <span id="req-per-sec-value">Loading...</span> req/s
     </div>
   </div>
 
@@ -133,6 +169,9 @@
       document.getElementById('avg-data').textContent = format(avg);
       document.getElementById('peak-data').textContent = format(peak);
       document.getElementById('total-data').textContent = format(total);
+
+      // Cập nhật phần Requests per second dưới biểu đồ
+      document.getElementById('req-per-sec-value').textContent = avg.toFixed(1);
 
       Highcharts.chart('chart', {
         chart: {
