@@ -3,148 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Request Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <title>DS-TAT Count Bot Preview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
+    /* === Telegram Forwarded Container === */
     body {
       margin: 0;
-      padding: 10px;
+      background: #1a1a1a;
       font-family: 'Poppins', sans-serif;
-      background-color: #0f0f0f;
-      color: #e0f7fa;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
     }
-    #dashboard {
+    .forwarded {
       width: 100%;
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 16px;
-      background: #1c1c1e;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+      max-width: 650px;            /* increased max-width */
+      background: #2f2dff;
+      border-radius: 12px 12px 0 0;
+      color: #fff;
+      overflow: hidden;
     }
-    .tg-header {
+    .forwarded .header {
+      padding: 10px 14px;          /* increased padding */
+      font-size: 15px;             /* larger font */
+      font-weight: 600;
+    }
+    .forwarded .header i {
+      margin-right: 6px;
+    }
+    /* === Bot Card === */
+    .bot-card {
+      background: #1f1f1f;
+      border-radius: 0 0 12px 12px;
+      padding: 16px;               /* increased padding */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .bot-card .tg-header {
       display: flex;
       align-items: center;
-      padding: 12px 16px;
-      background: #1e1e1e;
-      border-radius: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 16px;         /* more spacing */
     }
-    .tg-header .avatar {
-      width: 48px;
-      height: 48px;
+    .bot-card .avatar {
+      width: 40px;                 /* larger avatar */
+      height: 40px;
       border-radius: 50%;
-      background-color: #333;
       background-size: cover;
       background-position: center;
-      margin-right: 12px;
+      margin-right: 10px;
     }
-    .tg-header .info {
-      display: flex;
-      flex-direction: column;
-    }
-    .tg-header .info .name {
-      font-size: 18px;
+    .bot-card .info .name {
+      margin: 0;
+      color: #fff;
+      font-size: 16px;             /* larger name */
       font-weight: 600;
-      color: #ffffff;
+    }
+    .bot-card .info .meta {
       margin: 0;
+      font-size: 13px;             /* larger meta */
+      color: #ccc;
     }
-    .tg-header .info .meta {
-      font-size: 13px;
-      color: #90caf9;
-      margin: 0;
-      display: flex;
-      align-items: center;
-    }
-    .tg-header .info .meta i {
-      margin-right: 6px;
-      color: #29b6f6;
-    }
-    /* CHỈNH LẠI CHO CHART GỌN HƠN */
+    /* === Chart Container === */
     #chart-container {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 0 30px rgba(0,255,170,0.2);
-      width: 100%;
-      max-width: 800px;
-      height: 400px;
-      margin: 0 auto 20px;
+      background: #161616;
+      border-radius: 8px;
+      padding: 12px;              /* increased padding */
+      margin-bottom: 16px;
+      height: 300px;              /* increased height */
+      position: relative;
     }
     #chart-title {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 16px;            /* larger title */
       color: #80d8ff;
-      margin-bottom: 12px;
+      text-align: center;
+      margin-bottom: 6px;
     }
     #chart {
       width: 100%;
-      height: calc(100% - 36px);
+      height: calc(100% - 26px);
     }
+    /* === Stats Row === */
     .stats {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;                   /* increased gap */
     }
     .stat-box {
       flex: 1;
       background: #242424;
-      border: 1px solid #2e2e2e;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 8px;               /* increased padding */
       text-align: center;
-      box-shadow: inset 0 0 12px rgba(0,255,170,0.1);
-      position: relative;
-    }
-    .stat-box i {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      font-size: 20px;
-      color: #00e676;
-      opacity: 0.2;
     }
     .stat-box .data-container {
-      font-size: 24px;
+      font-size: 16px;            /* larger data */
       font-weight: bold;
       color: #00e676;
-      margin-bottom: 6px;
     }
     .stat-box .label {
-      font-size: 14px;
-      color: #b0bec5;
+      font-size: 12px;            /* larger label */
+      color: #aaa;
     }
   </style>
 </head>
 <body>
-  <div id="dashboard">
-    <div class="tg-header">
-      <div id="tg-avatar" class="avatar"></div>
-      <div class="info">
-        <p id="tg-name" class="name">Loading...</p>
-        <p class="meta"><i class="fab fa-telegram-plane"></i><span id="tg-meta-text">UID: --</span></p>
-      </div>
+
+  <div class="forwarded">
+    <div class="header">
+      <i class="fas fa-share"></i>COUNT FROM  <strong>DSTAT Count Bot</strong>
     </div>
-    <div id="chart-container">
-      <div id="chart-title">Request Overview</div>
-      <div id="chart"></div>
-    </div>
-    <div class="stats">
-      <div class="stat-box">
-        <i class="fas fa-chart-area"></i>
-        <div class="data-container" id="avg-data">--</div>
-        <div class="label">Avg Requests</div>
+
+    <div class="bot-card">
+      <div class="tg-header">
+        <div id="tg-avatar" class="avatar"></div>
+        <div class="info">
+          <p id="tg-name" class="name">Loading...</p>
+          <p id="tg-meta-text" class="meta">UID: --</p>
+        </div>
       </div>
-      <div class="stat-box">
-        <i class="fas fa-bolt"></i>
-        <div class="data-container" id="peak-data">--</div>
-        <div class="label">Peak Requests</div>
+
+      <div id="chart-container">
+        <div id="chart-title">Request Overview</div>
+        <div id="chart"></div>
       </div>
-      <div class="stat-box">
-        <i class="fas fa-database"></i>
-        <div class="data-container" id="total-data">--</div>
-        <div class="label">Total Requests</div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="data-container" id="avg-data">--</div>
+          <div class="label">Avg Requests</div>
+        </div>
+        <div class="stat-box">
+          <div class="data-container" id="peak-data">--</div>
+          <div class="label">Peak Requests</div>
+        </div>
+        <div class="stat-box">
+          <div class="data-container" id="total-data">--</div>
+          <div class="label">Total Requests</div>
+        </div>
       </div>
     </div>
   </div>
@@ -153,98 +147,81 @@
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script>
     function getParam(name) {
-      const val = new URLSearchParams(window.location.search).get(name);
-      return val ? decodeURIComponent(val) : '';
+      const v = new URLSearchParams(window.location.search).get(name);
+      return v ? decodeURIComponent(v) : '';
     }
-
-    function formatNumber(num) {
-      if (num < 1000) return num;
-      let suffixes = ["", "k", "M", "B"];
-      let suffixIndex = 0;
-      while (num >= 1000 && suffixIndex < suffixes.length - 1) {
-        suffixIndex++;
-        num /= 1000;
-      }
-      return num.toFixed(2).replace(/\.00$/, '') + suffixes[suffixIndex];
+    function formatNumber(n) {
+      if (n < 1000) return n;
+      const s = ["", "k","M","B"];
+      let idx = 0;
+      while (n >= 1000 && idx < s.length-1) { n/=1000; idx++; }
+      return n.toFixed(2).replace(/\.00$/,'') + s[idx];
     }
 
     window.onload = () => {
-      const user = getParam('user');
-      const uid = getParam('uid');
+      const user   = getParam('user');
+      const uid    = getParam('uid');
       const avatar = getParam('avatar');
-      const rawData = getParam('data');
-
-      document.getElementById('tg-name').textContent = user || 'Unknown';
-      document.getElementById('tg-meta-text').textContent = `UID: ${uid || '--'}`;
+      const raw    = getParam('data');
+      document.getElementById('tg-name').textContent     = user || 'Unknown';
+      document.getElementById('tg-meta-text').textContent= `UID: ${uid||'--'}`;
       document.getElementById('tg-avatar').style.backgroundImage =
-        `url(${avatar || 'https://via.placeholder.com/48/555555/FFFFFF?text=U'})`;
+        `url(${ avatar || 'https://via.placeholder.com/32' })`;
 
       let data = [];
       try {
-        data = JSON.parse(rawData);
-        if (!Array.isArray(data)) throw 'Invalid data format';
-        data = data.map(n => Math.round(Number(n) || 0));
-      } catch (e) {
-        console.error('Error parsing data:', e);
-        data = [];
-      }
+        data = JSON.parse(raw);
+        if (!Array.isArray(data)) throw '';
+        data = data.map(x=>Math.round(Number(x)||0));
+      } catch{ data = []; }
 
-      const total = data.reduce((a, b) => a + b, 0);
-      const peak = data.length ? Math.max(...data) : 0;
-      const avg = data.length ? Math.round(total / data.length) : 0;
+      const total = data.reduce((a,b)=>a+b,0);
+      const peak  = data.length?Math.max(...data):0;
+      const avg   = data.length?Math.round(total/data.length):0;
 
-      document.getElementById('avg-data').textContent = data.length ? formatNumber(avg) : '--';
-      document.getElementById('peak-data').textContent = data.length ? formatNumber(peak) : '--';
-      document.getElementById('total-data').textContent = data.length ? formatNumber(total) : '--';
+      document.getElementById('avg-data').textContent  = data.length?formatNumber(avg):'--';
+      document.getElementById('peak-data').textContent = data.length?formatNumber(peak):'--';
+      document.getElementById('total-data').textContent= data.length?formatNumber(total):'--';
 
-      // Limit data points shown on chart to 50
-      const displayLimit = 50;
-      if (data.length > displayLimit) {
-        data = data.slice(-displayLimit);
-      }
-
-      const labels = data.map((_, i) => `${i + 1}`);
+      // chỉ show 40 điểm cuối cho gọn
+      if (data.length > 40) data = data.slice(-40);
+      const labels = data.map((_,i)=>`${i+1}`);
 
       Highcharts.chart('chart', {
         chart: {
           type: 'line',
           backgroundColor: 'transparent',
-          height: 400,        // cố định chiều cao
-          animation: false
+          height: '100%',
+          animation: false,
+          margin: [12,12,24,44]
         },
         title: { text: '' },
         xAxis: {
           categories: labels,
-          labels: { style: { color: '#81d4fa', fontWeight: 'bold' } },
+          labels: { style: { color: '#81d4fa', fontSize: '10px' } },
           lineColor: '#37474f',
           gridLineWidth: 1,
           gridLineColor: '#444'
         },
         yAxis: {
+          labels: { style: { color: '#a5d6a7', fontSize: '10px' } },
           gridLineColor: '#2e7d32',
-          labels: { style: { color: '#a5d6a7', fontWeight: 'bold' } },
           title: { text: '' },
           allowDecimals: false
         },
         tooltip: {
           backgroundColor: '#212121',
           borderColor: '#00e676',
-          style: { color: '#fff' },
+          style: { color: '#fff', fontSize: '12px' },
           valueDecimals: 0
         },
-        legend: {
-          itemStyle: {
-            color: '#ffffff',
-            fontWeight: 'bold'
-          }
-        },
+        legend: { enabled: false },
         series: [{
-          name: 'Requests Per Second (Bypassed)',
           data: data,
-          color: 'rgba(0, 230, 118, 0.2)',
           lineColor: '#00e676',
-          lineWidth: 4,
-          marker: { radius: 4 }
+          lineWidth: 3,
+          marker: { radius: 3 },
+          color: 'rgba(0,230,118,0.4)'
         }],
         credits: { enabled: false }
       });
