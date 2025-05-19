@@ -22,7 +22,6 @@
       border-radius: 16px;
       box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
     }
-    /* Telegram-like header larger */
     .tg-header {
       display: flex;
       align-items: center;
@@ -54,6 +53,12 @@
       font-size: 13px;
       color: #90caf9;
       margin: 0;
+      display: flex;
+      align-items: center;
+    }
+    .tg-header .info .meta i {
+      margin-right: 6px;
+      color: #29b6f6;
     }
     #chart-container {
       background: #1e1e1e;
@@ -111,20 +116,17 @@
 </head>
 <body>
   <div id="dashboard">
-    <!-- Enlarged Telegram-like header -->
     <div class="tg-header">
       <div id="tg-avatar" class="avatar"></div>
       <div class="info">
-        <p id="tg-name" class="name">--</p>
-        <p id="tg-meta" class="meta">--</p>
+        <p id="tg-name" class="name">Loading...</p>
+        <p class="meta"><i class="fab fa-telegram-plane"></i><span id="tg-meta-text">UID: --</span></p>
       </div>
     </div>
-    <!-- Enlarged Chart section -->
     <div id="chart-container">
       <div id="chart-title">Request Overview</div>
       <div id="chart"></div>
     </div>
-    <!-- Enlarged Stats -->
     <div class="stats">
       <div class="stat-box">
         <i class="fas fa-chart-area"></i>
@@ -147,39 +149,49 @@
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script>
     function getParam(name) {
-      const p = new URLSearchParams(window.location.search).get(name) || '';
-      return decodeURIComponent(p);
+      const val = new URLSearchParams(window.location.search).get(name);
+      return val ? decodeURIComponent(val) : '';
     }
     window.onload = () => {
-      // header data
-      const username = getParam('user');
+      // Lấy header data
+      const user = getParam('user');
       const uid = getParam('uid');
-      const avatarUrl = getParam('avatar');
-      document.getElementById('tg-name').textContent = username;
-      document.getElementById('tg-meta').textContent = `UID: ${uid}`;
-      if (avatarUrl) {
-        document.getElementById('tg-avatar').style.backgroundImage = `url(${avatarUrl})`;
+      const avatar = getParam('avatar');
+      document.getElementById('tg-name').textContent = user || 'Unknown';
+      document.getElementById('tg-meta-text').textContent = `UID: ${uid || '--'}`;
+      if (avatar) {
+        document.getElementById('tg-avatar').style.backgroundImage = `url(${avatar})`;
       }
 
-      // chart data
+      // Lấy chart data
       let raw = getParam('data'), data = [];
-      try { data = JSON.parse(raw).map(n=>Math.round(n)); } catch(e) { data=[]; }
-      const total = data.reduce((a,b)=>a+b,0);
-      const peak = data.length?Math.max(...data):0;
-      const avg = data.length?Math.round(total/data.length):0;
-      const fmt = n=>n.toLocaleString();
-      document.getElementById('avg-data').textContent = data.length?fmt(avg):'--';
-      document.getElementById('peak-data').textContent = data.length?fmt(peak):'--';
-      document.getElementById('total-data').textContent = data.length?fmt(total):'--';
+      try {
+        data = JSON.parse(raw);
+        if (!Array.isArray(data)) throw 'Not array';
+        data = data.map(n => Math.round(Number(n) || 0));
+      } catch (e) {
+        console.error('Data parse error:', e, raw);
+        data = [];
+      }
 
-      Highcharts.chart('chart',{
-        chart:{type:'line',backgroundColor:'transparent',height:'100%'},
-        title:{text:''},
-        xAxis:{labels:{style:{color:'#81d4fa'}},lineColor:'#37474f'},
-        yAxis:{gridLineColor:'#2e7d32',labels:{style:{color:'#a5d6a7'}},title:{text:''},allowDecimals:false},
-        series:[{name:'Req/s',data:data,color:'#00e676',marker:{radius:4}}],
-        tooltip:{backgroundColor:'#212121',borderColor:'#00e676',style:{color:'#fff'},valueDecimals:0},
-        credits:{enabled:false}
+      // Cập nhật stats
+      const total = data.reduce((a,b) => a+b, 0);
+      const peak  = data.length ? Math.max(...data) : 0;
+      const avg   = data.length ? Math.round(total/data.length) : 0;
+      const fmt   = n => n.toLocaleString();
+      document.getElementById('avg-data').textContent  = data.length ? fmt(avg) : '--';
+      document.getElementById('peak-data').textContent = data.length ? fmt(peak) : '--';
+      document.getElementById('total-data').textContent= data.length ? fmt(total) : '--';
+
+      // Vẽ biểu đồ
+      Highcharts.chart('chart', {
+        chart: { type: 'line', backgroundColor: 'transparent', height: '100%' },
+        title: { text: '' },
+        xAxis: { labels: { style: { color: '#81d4fa' } }, lineColor: '#37474f' },
+        yAxis: { gridLineColor: '#2e7d32', labels: { style: { color: '#a5d6a7' } }, title: { text: '' }, allowDecimals: false },
+        series: [{ name: 'Req/s', data: data, color: '#00e676', marker: { radius: 4 } }],
+        tooltip: { backgroundColor: '#212121', borderColor: '#00e676', style: { color: '#fff' }, valueDecimals: 0 },
+        credits: { enabled: false }
       });
     };
   </script>
