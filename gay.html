@@ -3,258 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Layer7 - DSTAT</title>
+  <title>Request Dashboard - Compact with Header</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('https://i.imgur.com/QK0fmb3.jpeg') no-repeat center center fixed;
-      background-size: cover;
-      color: #333;
+      font-family: 'Poppins', sans-serif;
+      background-color: #0f0f0f;
+      color: #e0f7fa;
     }
-
     #dashboard {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 800px;
+      margin: 10px auto;
+      padding: 8px;
+      background: #1c1c1e;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.1);
     }
-
+    /* Telegram-like header */
+    .tg-header {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .tg-header .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #333;
+      background-size: cover;
+      background-position: center;
+      margin-right: 8px;
+    }
+    .tg-header .info {
+      display: flex;
+      flex-direction: column;
+    }
+    .tg-header .info .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0;
+    }
+    .tg-header .info .meta {
+      font-size: 11px;
+      color: #90caf9;
+      margin: 0;
+    }
+    #chart-container {
+      background: #1e1e1e;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,255,170,0.1);
+      height: 300px;
+      margin-bottom: 16px;
+    }
+    #chart-title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #80d8ff;
+      margin-bottom: 8px;
+    }
+    #chart {
+      width: 100%;
+      height: calc(100% - 24px);
+    }
     .stats {
       display: flex;
       justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 30px;
+      gap: 8px;
     }
-
     .stat-box {
       flex: 1;
-      min-width: 250px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: #242424;
+      border: 1px solid #2e2e2e;
+      border-radius: 10px;
+      padding: 6px;
       text-align: center;
-    }
-
-    .stat-box .data-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #2979ff;
-      margin-bottom: 10px;
-    }
-
-    .stat-box .data-container i {
-      font-size: 32px;
-      color: #2979ff;
-    }
-
-    .stat-box .label {
-      color: #555;
-      font-size: 14px;
-    }
-
-    #chart-container {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(41, 121, 255, 0.2);
+      box-shadow: inset 0 0 8px rgba(0,255,170,0.05);
       position: relative;
     }
-
-    #req-per-sec-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 18px;
-      color: #2979ff;
-      font-weight: 600;
-      user-select: none;
-      margin-bottom: 8px;
+    .stat-box i {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 16px;
+      color: #00e676;
+      opacity: 0.2;
     }
-
-    #req-per-sec-label i {
-      font-size: 22px;
-    }
-
-    #req-per-sec-value {
-      font-weight: 700;
-      color: #1a237e;
-    }
-
-    #chart-title {
-      text-align: center;
-      color: #1a237e;
-      font-size: 20px;
+    .stat-box .data-container {
+      font-size: 16px;
       font-weight: bold;
-      margin: 0 0 20px 0;
-      user-select: none;
+      color: #00e676;
+      margin-bottom: 4px;
     }
-
-    #chart {
-      height: 400px;
-      width: 100%;
+    .stat-box .label {
+      font-size: 11px;
+      color: #b0bec5;
     }
   </style>
 </head>
 <body>
   <div id="dashboard">
-    <div class="stats">
-      <div class="stat-box">
-        <div class="data-container">
-          <i class="fas fa-chart-area"></i>
-          <div id="avg-data">Loading...</div>
-        </div>
-        <div class="label">Average Requests</div>
-      </div>
-      <div class="stat-box">
-        <div class="data-container">
-          <i class="fas fa-chart-line"></i>
-          <div id="peak-data">Loading...</div>
-        </div>
-        <div class="label">Peak Requests</div>
-      </div>
-      <div class="stat-box">
-        <div class="data-container">
-          <i class="fas fa-dice-d20"></i>
-          <div id="total-data">Loading...</div>
-        </div>
-        <div class="label">Overall Requests</div>
+    <!-- Telegram-like header -->
+    <div class="tg-header">
+      <div id="tg-avatar" class="avatar"></div>
+      <div class="info">
+        <p id="tg-name" class="name">--</p>
+        <p id="tg-meta" class="meta">--</p>
       </div>
     </div>
-
+    <!-- Chart section -->
     <div id="chart-container">
-      <div id="req-per-sec-label">
-        <i class="fas fa-tachometer-alt"></i>
-        <span id="req-per-sec-value">N/A</span> req/s
-      </div>
-
-      <div id="chart-title">AIKO DSTAT</div>
-
+      <div id="chart-title">Request Overview</div>
       <div id="chart"></div>
+    </div>
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-box">
+        <i class="fas fa-chart-area"></i>
+        <div class="data-container" id="avg-data">--</div>
+        <div class="label">Avg Requests</div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-bolt"></i>
+        <div class="data-container" id="peak-data">--</div>
+        <div class="label">Peak Req</div>
+      </div>
+      <div class="stat-box">
+        <i class="fas fa-database"></i>
+        <div class="data-container" id="total-data">--</div>
+        <div class="label">Total Req</div>
+      </div>
     </div>
   </div>
 
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script>
+    function getParam(name) { return new URLSearchParams(window.location.search).get(name) || ''; }
     window.onload = () => {
-      const queryParams = new URLSearchParams(window.location.search);
-      const dataString = queryParams.get('data');
-      let data = [];
+      // header data
+      const username = getParam('user');
+      const uid = getParam('uid');
+      const avatarUrl = getParam('avatar');
+      document.getElementById('tg-name').textContent = username;
+      document.getElementById('tg-meta').textContent = `UID: ${uid}`;
+      if (avatarUrl) document.getElementById('tg-avatar').style.backgroundImage = `url(${avatarUrl})`;
 
-      if (dataString) {
-        try {
-          data = JSON.parse(dataString);
-        } catch (e) {
-          console.error('Invalid data:', e);
-        }
-      }
+      // chart data
+      let raw = getParam('data'), data = [];
+      try { data = JSON.parse(decodeURIComponent(raw)).map(n=>Math.round(n)); } catch(e) { data=[]; }
+      const total = data.reduce((a,b)=>a+b,0);
+      const peak = data.length?Math.max(...data):0;
+      const avg = data.length?Math.round(total/data.length):0;
+      const fmt = n=>n.toLocaleString();
+      document.getElementById('avg-data').textContent = data.length?fmt(avg):'--';
+      document.getElementById('peak-data').textContent = data.length?fmt(peak):'--';
+      document.getElementById('total-data').textContent = data.length?fmt(total):'--';
 
-      const total = data.reduce((a, b) => a + b, 0);
-      const peak = data.length ? Math.max(...data) : 0;
-      const avg = (total / data.length) || 0;
-
-      const format = n => {
-        n = Math.floor(n); // Làm tròn xuống số nguyên
-        if (n < 1000) return n;
-        const suffix = ['k', 'M', 'B'];
-        let i = 0;
-        while (n >= 1000 && i < suffix.length) {
-          n = Math.floor(n / 1000);
-          i++;
-        }
-        return n + suffix[i - 1];
-      };
-
-      document.getElementById('avg-data').textContent = format(avg);
-      document.getElementById('peak-data').textContent = format(peak);
-      document.getElementById('total-data').textContent = format(total);
-
-      // Cập nhật giá trị req/s mới nhất (giá trị cuối cùng trong mảng data)
-      const latestReqPerSec = data.length > 0 ? data[data.length - 1] : null;
-      document.getElementById('req-per-sec-value').textContent = latestReqPerSec !== null ? latestReqPerSec : 'N/A';
-
-      Highcharts.chart('chart', {
-        chart: {
-          type: 'spline',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          style: {
-            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
-          }
-        },
-        title: {
-          text: '', // Ẩn tiêu đề mặc định của Highcharts
-        },
-        xAxis: {
-          crosshair: true,
-          gridLineColor: '#e3f2fd',
-          labels: {
-            style: {
-              color: '#1565c0',
-              fontWeight: 'bold'
-            }
-          }
-        },
-        yAxis: {
-          gridLineColor: '#e3f2fd',
-          title: { text: '' },
-          labels: {
-            style: {
-              color: '#1565c0'
-            }
-          }
-        },
-        tooltip: {
-          backgroundColor: '#ffffff',
-          borderColor: '#2979ff',
-          borderRadius: 8,
-          shadow: true,
-          style: {
-            color: '#000000',
-            fontWeight: '500'
-          },
-          valueSuffix: ' req/s'
-        },
-        legend: {
-          enabled: false
-        },
-        series: [{
-          name: 'Requests/sec',
-          data: data,
-          color: {
-            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 0 },
-            stops: [
-              [0, '#64b5f6'],
-              [1, '#1e88e5']
-            ]
-          },
-          lineWidth: 4,
-          marker: {
-            enabled: true,
-            radius: 5,
-            fillColor: '#ffffff',
-            lineWidth: 2,
-            lineColor: '#2979ff'
-          },
-          shadow: true
-        }],
-        credits: {
-          enabled: false
-        }
+      Highcharts.chart('chart',{
+        chart:{type:'line',backgroundColor:'transparent',height:'100%'},
+        title:{text:''},
+        xAxis:{labels:{style:{color:'#81d4fa'}},lineColor:'#37474f'},
+        yAxis:{gridLineColor:'#2e7d32',labels:{style:{color:'#a5d6a7'}},title:{text:''},allowDecimals:false},
+        series:[{name:'Req/s',data:data,color:'#00e676',marker:{radius:3}}],
+        tooltip:{backgroundColor:'#212121',borderColor:'#00e676',style:{color:'#fff'},valueDecimals:0},
+        credits:{enabled:false}
       });
     };
   </script>
