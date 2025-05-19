@@ -16,7 +16,7 @@
       }
 
       .container {
-        max-width: 1200px;
+        max-width: 900px;  /* Decreased the max-width of the container */
         margin: 0 auto;
         padding: 2em;
         display: flex;
@@ -40,10 +40,21 @@
         margin-right: 15px;
       }
 
+      .user-info .telegram-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+      }
+
       .user-info span {
         font-size: 18px;
         color: #ffffff;
         font-weight: bold;
+        margin-right: 15px; /* Spacing between username and user id */
+      }
+
+      .user-info .user-id {
+        color: #00ff7f; /* Green color for user ID */
       }
 
       .stats-container {
@@ -98,6 +109,7 @@
 
       #chart {
         width: 100%;
+        max-width: 800px;  /* Limiting max-width of the chart */
         height: 400px;
       }
     </style>
@@ -105,10 +117,12 @@
 
   <body>
     <div class="container">
+      <!-- User Info Section -->
       <div class="user-info">
-        <img id="avatar" src="" alt="User Avatar">
+        <!-- Telegram Icon from Imgbb -->
+        <img src="https://i.ibb.co/6RVR24Zp/telegram.png" class="telegram-icon" alt="Telegram Icon">
         <span id="user-name">Loading...</span>
-        <span id="user-id" style="color: #00ff7f;">Loading...</span>
+        <span id="user-id" class="user-id">Loading...</span>
       </div>
 
       <div class="stats-container">
@@ -152,7 +166,6 @@
       document.getElementById('avg-data').textContent = avgRequests;
       document.getElementById('user-name').textContent = user;
       document.getElementById('user-id').textContent = `ID: ${userId}`;
-      document.getElementById('avatar').src = avatarUrl || 'https://i.imgur.com/QK0fmb3.jpeg';  // Default avatar if none
 
       Highcharts.chart('chart', {
         chart: {
