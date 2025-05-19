@@ -147,52 +147,101 @@
   </div>
 
   <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script>
-    function getParam(name) {
-      const val = new URLSearchParams(window.location.search).get(name);
-      return val ? decodeURIComponent(val) : '';
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script>
+  function getParam(name) {
+    const val = new URLSearchParams(window.location.search).get(name);
+    return val ? decodeURIComponent(val) : '';
+  }
+
+  function formatNumber(num) {
+    if (num < 1000) return num;
+    let suffixes = ["", "k", "M", "B"];
+    let suffixIndex = 0;
+    while (num >= 1000 && suffixIndex < suffixes.length - 1) {
+      suffixIndex++;
+      num /= 1000;
     }
-    window.onload = () => {
-      const user = getParam('user');
-      const uid = getParam('uid');
-      const avatar = getParam('avatar');
-      document.getElementById('tg-name').textContent = user || 'Unknown';
-      document.getElementById('tg-meta-text').textContent = `UID: ${uid || '--'}`;
-      if (avatar) {
-        document.getElementById('tg-avatar').style.backgroundImage = `url(${avatar})`;
-      } else {
-        // default placeholder image
-        document.getElementById('tg-avatar').style.backgroundImage = 'url(https://via.placeholder.com/48/555555/FFFFFF?text=U)';
-      }
+    return num.toFixed(2).replace(/\.00$/, '') + suffixes[suffixIndex];
+  }
 
-      let raw = getParam('data'), data = [];
-      try {
-        data = JSON.parse(raw);
-        if (!Array.isArray(data)) throw 'Not array';
-        data = data.map(n => Math.round(Number(n) || 0));
-      } catch (e) {
-        console.error('Data parse error:', e, raw);
-        data = [];
-      }
+  window.onload = () => {
+    const user = getParam('user');
+    const uid = getParam('uid');
+    const avatar = getParam('avatar');
+    const rawData = getParam('data');
 
-      const total = data.reduce((a,b) => a+b, 0);
-      const peak  = data.length ? Math.max(...data) : 0;
-      const avg   = data.length ? Math.round(total/data.length) : 0;
-      const fmt   = n => n.toLocaleString();
-      document.getElementById('avg-data').textContent  = data.length ? fmt(avg) : '--';
-      document.getElementById('peak-data').textContent = data.length ? fmt(peak) : '--';
-      document.getElementById('total-data').textContent= data.length ? fmt(total) : '--';
+    // Fill user info
+    document.getElementById('tg-name').textContent = user || 'Unknown';
+    document.getElementById('tg-meta-text').textContent = `UID: ${uid || '--'}`;
+    document.getElementById('tg-avatar').style.backgroundImage =
+      `url(${avatar || 'https://via.placeholder.com/48/555555/FFFFFF?text=U'})`;
 
-      Highcharts.chart('chart', {
-        chart: { type: 'line', backgroundColor: 'transparent', height: '100%' },
+    let data = [];
+    try {
+      data = JSON.parse(rawData);
+      if (!Array.isArray(data)) throw 'Invalid data format';
+      data = data.map(n => Math.round(Number(n) || 0));
+    } catch (e) {
+      console.error('Error parsing data:', e);
+      data = [];
+    }
+
+    const total = data.reduce((a, b) => a + b, 0);
+    const peak = data.length ? Math.max(...data) : 0;
+    const avg = data.length ? Math.round(total / data.length) : 0;
+
+    // Update stats UI
+    document.getElementById('avg-data').textContent = data.length ? formatNumber(avg) : '--';
+    document.getElementById('peak-data').textContent = data.length ? formatNumber(peak) : '--';
+    document.getElementById('total-data').textContent = data.length ? formatNumber(total) : '--';
+
+    // Render chart
+    Highcharts.chart('chart', {
+      chart: {
+        type: 'line',
+        backgroundColor: 'transparent',
+        height: '100%',
+        animation: false
+      },
+      title: { text: '' },
+      xAxis: {
+        labels: { style: { color: '#81d4fa', fontWeight: 'bold' } },
+        lineColor: '#37474f',
+        gridLineWidth: 1,
+        gridLineColor: '#444'
+      },
+      yAxis: {
+        gridLineColor: '#2e7d32',
+        labels: { style: { color: '#a5d6a7', fontWeight: 'bold' } },
         title: { text: '' },
-        xAxis: { labels: { style: { color: '#81d4fa' } }, lineColor: '#37474f' },
-        yAxis: { gridLineColor: '#2e7d32', labels: { style: { color: '#a5d6a7' } }, title: { text: '' }, allowDecimals: false },
-        series: [{ name: 'Req/s', data: data, color: '#00e676', marker: { radius: 4 } }],
-        tooltip: { backgroundColor: '#212121', borderColor: '#00e676', style: { color: '#fff' }, valueDecimals: 0 },
-        credits: { enabled: false }
-      });
-    };
-  </script>
+        allowDecimals: false
+      },
+      tooltip: {
+        backgroundColor: '#212121',
+        borderColor: '#00e676',
+        style: { color: '#fff' },
+        valueDecimals: 0
+      },
+      legend: {
+        itemStyle: {
+          color: '#ffffff',
+          fontWeight: 'bold'
+        }
+      },
+      series: [{
+        name: 'Requests Per Second (Bypassed)',
+        data: data,
+        color: 'rgba(0, 230, 118, 0.2)',
+        lineColor: '#00e676',
+        lineWidth: 4,
+        marker: {
+          radius: 4
+        }
+      }],
+      credits: { enabled: false }
+    });
+  };
+</script>
 </body>
 </html>
