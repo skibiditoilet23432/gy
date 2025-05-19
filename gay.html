@@ -60,13 +60,16 @@
       margin-right: 6px;
       color: #29b6f6;
     }
+    /* CHỈNH LẠI CHO CHART GỌN HƠN */
     #chart-container {
       background: #1e1e1e;
       padding: 20px;
       border-radius: 16px;
       box-shadow: 0 0 30px rgba(0,255,170,0.2);
+      width: 100%;
+      max-width: 800px;
       height: 400px;
-      margin-bottom: 20px;
+      margin: 0 auto 20px;
     }
     #chart-title {
       text-align: center;
@@ -206,7 +209,7 @@
         chart: {
           type: 'line',
           backgroundColor: 'transparent',
-          height: '100%',
+          height: 400,        // cố định chiều cao
           animation: false
         },
         title: { text: '' },
