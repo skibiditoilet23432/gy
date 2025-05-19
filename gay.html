@@ -40,6 +40,10 @@
       background-position: center;
       margin-right: 12px;
     }
+    .tg-header .info {
+      display: flex;
+      flex-direction: column;
+    }
     .tg-header .info .name {
       font-size: 18px;
       font-weight: 600;
@@ -142,7 +146,10 @@
 
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script>
-    function getParam(name) { return new URLSearchParams(window.location.search).get(name) || ''; }
+    function getParam(name) {
+      const p = new URLSearchParams(window.location.search).get(name) || '';
+      return decodeURIComponent(p);
+    }
     window.onload = () => {
       // header data
       const username = getParam('user');
@@ -150,11 +157,13 @@
       const avatarUrl = getParam('avatar');
       document.getElementById('tg-name').textContent = username;
       document.getElementById('tg-meta').textContent = `UID: ${uid}`;
-      if (avatarUrl) document.getElementById('tg-avatar').style.backgroundImage = `url(${avatarUrl})`;
+      if (avatarUrl) {
+        document.getElementById('tg-avatar').style.backgroundImage = `url(${avatarUrl})`;
+      }
 
       // chart data
       let raw = getParam('data'), data = [];
-      try { data = JSON.parse(decodeURIComponent(raw)).map(n=>Math.round(n)); } catch(e) { data=[]; }
+      try { data = JSON.parse(raw).map(n=>Math.round(n)); } catch(e) { data=[]; }
       const total = data.reduce((a,b)=>a+b,0);
       const peak = data.length?Math.max(...data):0;
       const avg = data.length?Math.round(total/data.length):0;
