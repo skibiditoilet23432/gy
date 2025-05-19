@@ -3,105 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DS-TAT Count Bot Preview</title>
+  <title>COUNT FROM DSTAT Count Bot</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
-    /* === Telegram Forwarded Container === */
+    /* === Telegram-style Forwarded Container === */
     body {
       margin: 0;
-      background: #1a1a1a;
+      background: #121212;
       font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
-      padding: 20px;
+      padding: 30px;
     }
     .forwarded {
       width: 100%;
-      max-width: 650px;            /* increased max-width */
-      background: #2f2dff;
+      max-width: 750px;         /* further increased */
+      background: #3b3aff;
       border-radius: 12px 12px 0 0;
       color: #fff;
       overflow: hidden;
     }
     .forwarded .header {
-      padding: 10px 14px;          /* increased padding */
-      font-size: 15px;             /* larger font */
-      font-weight: 600;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: bold;
     }
     .forwarded .header i {
-      margin-right: 6px;
+      margin-right: 8px;
     }
     /* === Bot Card === */
     .bot-card {
-      background: #1f1f1f;
+      background: #1e1e1e;
       border-radius: 0 0 12px 12px;
-      padding: 16px;               /* increased padding */
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      padding: 20px;            /* larger padding */
+      box-shadow: 0 3px 12px rgba(0,0,0,0.6);
     }
-    .bot-card .tg-header {
+    .tg-header {
       display: flex;
       align-items: center;
-      margin-bottom: 16px;         /* more spacing */
+      margin-bottom: 20px;
     }
-    .bot-card .avatar {
-      width: 40px;                 /* larger avatar */
-      height: 40px;
+    .avatar {
+      width: 48px;              /* increased avatar */
+      height: 48px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      margin-right: 10px;
+      margin-right: 12px;
     }
-    .bot-card .info .name {
+    .info .name {
       margin: 0;
-      color: #fff;
-      font-size: 16px;             /* larger name */
+      font-size: 18px;
       font-weight: 600;
+      color: #ffffff;
     }
-    .bot-card .info .meta {
-      margin: 0;
-      font-size: 13px;             /* larger meta */
-      color: #ccc;
+    .info .meta {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #cccccc;
     }
     /* === Chart Container === */
     #chart-container {
-      background: #161616;
-      border-radius: 8px;
-      padding: 12px;              /* increased padding */
-      margin-bottom: 16px;
-      height: 300px;              /* increased height */
+      background: #131314;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 24px;
+      height: 350px;            /* increased height */
       position: relative;
     }
     #chart-title {
-      font-size: 16px;            /* larger title */
+      font-size: 18px;
       color: #80d8ff;
       text-align: center;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     #chart {
       width: 100%;
-      height: calc(100% - 26px);
+      height: calc(100% - 28px);
     }
     /* === Stats Row === */
     .stats {
       display: flex;
       justify-content: space-between;
-      gap: 8px;                   /* increased gap */
+      gap: 10px;
     }
     .stat-box {
       flex: 1;
       background: #242424;
       border-radius: 8px;
-      padding: 8px;               /* increased padding */
+      padding: 10px;
       text-align: center;
     }
     .stat-box .data-container {
-      font-size: 16px;            /* larger data */
-      font-weight: bold;
+      font-size: 18px;
+      font-weight: 700;
       color: #00e676;
     }
     .stat-box .label {
-      font-size: 12px;            /* larger label */
-      color: #aaa;
+      font-size: 13px;
+      color: #bbbbbb;
     }
   </style>
 </head>
@@ -109,9 +109,8 @@
 
   <div class="forwarded">
     <div class="header">
-      <i class="fas fa-share"></i>COUNT FROM  <strong>DSTAT Count Bot</strong>
+      <i class="fas fa-share"></i>COUNT FROM DSTAT Count Bot
     </div>
-
     <div class="bot-card">
       <div class="tg-header">
         <div id="tg-avatar" class="avatar"></div>
@@ -120,12 +119,10 @@
           <p id="tg-meta-text" class="meta">UID: --</p>
         </div>
       </div>
-
       <div id="chart-container">
         <div id="chart-title">Request Overview</div>
         <div id="chart"></div>
       </div>
-
       <div class="stats">
         <div class="stat-box">
           <div class="data-container" id="avg-data">--</div>
@@ -157,7 +154,6 @@
       while (n >= 1000 && idx < s.length-1) { n/=1000; idx++; }
       return n.toFixed(2).replace(/\.00$/,'') + s[idx];
     }
-
     window.onload = () => {
       const user   = getParam('user');
       const uid    = getParam('uid');
@@ -166,45 +162,39 @@
       document.getElementById('tg-name').textContent     = user || 'Unknown';
       document.getElementById('tg-meta-text').textContent= `UID: ${uid||'--'}`;
       document.getElementById('tg-avatar').style.backgroundImage =
-        `url(${ avatar || 'https://via.placeholder.com/32' })`;
-
+        `url(${ avatar || 'https://via.placeholder.com/48' })`;
       let data = [];
       try {
         data = JSON.parse(raw);
         if (!Array.isArray(data)) throw '';
         data = data.map(x=>Math.round(Number(x)||0));
       } catch{ data = []; }
-
       const total = data.reduce((a,b)=>a+b,0);
       const peak  = data.length?Math.max(...data):0;
       const avg   = data.length?Math.round(total/data.length):0;
-
       document.getElementById('avg-data').textContent  = data.length?formatNumber(avg):'--';
       document.getElementById('peak-data').textContent = data.length?formatNumber(peak):'--';
       document.getElementById('total-data').textContent= data.length?formatNumber(total):'--';
-
-      // chỉ show 40 điểm cuối cho gọn
-      if (data.length > 40) data = data.slice(-40);
+      if (data.length > 50) data = data.slice(-50);
       const labels = data.map((_,i)=>`${i+1}`);
-
       Highcharts.chart('chart', {
         chart: {
           type: 'line',
           backgroundColor: 'transparent',
           height: '100%',
           animation: false,
-          margin: [12,12,24,44]
+          margin: [14,14,26,46]
         },
         title: { text: '' },
         xAxis: {
           categories: labels,
-          labels: { style: { color: '#81d4fa', fontSize: '10px' } },
+          labels: { style: { color: '#81d4fa', fontSize: '11px' } },
           lineColor: '#37474f',
           gridLineWidth: 1,
           gridLineColor: '#444'
         },
         yAxis: {
-          labels: { style: { color: '#a5d6a7', fontSize: '10px' } },
+          labels: { style: { color: '#a5d6a7', fontSize: '11px' } },
           gridLineColor: '#2e7d32',
           title: { text: '' },
           allowDecimals: false
@@ -212,17 +202,11 @@
         tooltip: {
           backgroundColor: '#212121',
           borderColor: '#00e676',
-          style: { color: '#fff', fontSize: '12px' },
+          style: { color: '#fff', fontSize: '13px' },
           valueDecimals: 0
         },
         legend: { enabled: false },
-        series: [{
-          data: data,
-          lineColor: '#00e676',
-          lineWidth: 3,
-          marker: { radius: 3 },
-          color: 'rgba(0,230,118,0.4)'
-        }],
+        series: [{ data, lineColor: '#00e676', lineWidth: 3, marker: { radius: 3 }, color: 'rgba(0,230,118,0.4)' }],
         credits: { enabled: false }
       });
     };
