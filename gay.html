@@ -157,10 +157,13 @@
       const userId = urlParams.get('uid');
       const avatarUrl = urlParams.get('avatar');
       const rpsList = JSON.parse(dataString) || [];
-      const peakRequests = urlParams.get('peak') || 'Loading...';
-      const totalRequests = urlParams.get('total') || 'Loading...';
-      const avgRequests = (rpsList.reduce((acc, val) => acc + val, 0) / rpsList.length).toFixed(2) || 'Loading...';
+      
+      // Calculate total and average requests
+      const peakRequests = Math.round(Math.max(...rpsList)) || 'Loading...';  // Round to nearest integer
+      const totalRequests = Math.round(rpsList.reduce((acc, val) => acc + val, 0)) || 'Loading...';  // Round to nearest integer
+      const avgRequests = Math.round(rpsList.reduce((acc, val) => acc + val, 0) / rpsList.length) || 'Loading...';  // Round to nearest integer
 
+      // Display the values
       document.getElementById('peak-data').textContent = peakRequests;
       document.getElementById('total-data').textContent = totalRequests;
       document.getElementById('avg-data').textContent = avgRequests;
@@ -201,7 +204,7 @@
         },
         series: [{
           name: 'Requests Per Second',
-          data: rpsList,
+          data: rpsList.map((val) => Math.round(val)),  // Ensure all data points are integers
           color: '#00ff7f', // Neon Green color for the line
           lineWidth: 4,
           marker: {
