@@ -1,139 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aiko Dashboard</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- AOS for scroll animations -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <style>
-    body { background: linear-gradient(135deg, #e8f0fe, #fce4ec); }
-    .card { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transition: transform 0.3s, box-shadow 0.3s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.2); }
-    .section-title { position: relative; }
-    .section-title::after {
-      content: '';
-      position: absolute;
-      width: 4rem;
-      height: 0.25rem;
-      background: #ec407a;
-      bottom: -0.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 0.125rem;
-    }
-    nav a { transition: color 0.2s; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <title>Premium Statistics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F4F6F8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Courier Prime', monospace;
+        }
+        .dashboard {
+            width: 960px;
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #243B63 0%, #1C2C5B 100%);
+            color: #FFFFFF;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand .logo {
+            font-size: 16px;
+            font-weight: bold;
+            color: #6CA0DC;
+        }
+        .brand .title {
+            font-size: 36px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .meta {
+            text-align: right;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .content {
+            padding: 0 32px 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 24px;
+            margin-top: -16px; /* overlap header base */
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .card:first-of-type {
+            margin-top: 16px;
+        }
+        .card h3 {
+            margin: 0 0 12px;
+            font-size: 20px;
+            font-weight: 500;
+            color: #1C2C5B;
+        }
+        .charts .card {
+            height: 340px;
+        }
+        #container-pie, #container-bar {
+            width: 100%;
+            height: calc(100% - 36px); /* account for title space */
+        }
+        .tables {
+            grid-column: 1 / span 2;
+            display: flex;
+            gap: 24px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+        }
+        th, td {
+            border-bottom: 1px dashed #CCC;
+            padding: 10px 8px;
+            text-align: left;
+        }
+        th {
+            font-weight: 600;
+            color: #555;
+        }
+        td:last-child, th:last-child {
+            text-align: right;
+        }
+    </style>
 </head>
-<body class="font-sans antialiased text-gray-700">
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md fixed w-full z-10">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-pink-500">Aiko Dashboard</h1>
-      <div class="space-x-6">
-        <a href="#overview" class="text-gray-600 hover:text-pink-500">Overview</a>
-        <a href="#charts" class="text-gray-600 hover:text-pink-500">Charts</a>
-        <a href="#about" class="text-gray-600 hover:text-pink-500">About</a>
-      </div>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div class="brand">
+                <span class="logo">AIKO</span>
+                <span class="title">Premium Statistics</span>
+            </div>
+            <div class="meta">
+                <div id="server-text">Cloudflare-Pro</div>
+                <div id="date-text">Aug 18, 2024</div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="card charts">
+                <h3>Overall</h3>
+                <div id="container-pie"></div>
+            </div>
+            <div class="card charts">
+                <h3>Top Nation's IP</h3>
+                <div id="container-bar"></div>
+            </div>
+            <div class="tables">
+                <div class="card">
+                    <table id="table-1">
+                        <thead>
+                            <tr><th>#</th><th>ASN</th><th>Count</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <table id="table-2">
+                        <thead>
+                            <tr><th>#</th><th>ASN</th><th>Count</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </nav>
 
-  <!-- Hero Section -->
-  <section id="overview" class="pt-24 pb-16 bg-white">
-    <div class="max-w-4xl mx-auto text-center px-6" data-aos="fade-up">
-      <h2 class="text-5xl font-extrabold text-gray-800 mb-4">Real-Time Aiko Statistics</h2>
-      <p class="text-lg text-gray-600">Dynamic insights showing distribution of sources, countries, and ASNs for your server and user.</p>
-    </div>
-  </section>
+    <script>
+        // Utility to read URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const sv = urlParams.get('sv') || 'NULL';
+        const date = urlParams.get('date') || 'NULL';
+        document.getElementById('server-text').textContent = sv;
+        document.getElementById('date-text').textContent = date;
 
-  <!-- Summary Cards -->
-  <section class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 px-6" data-aos="fade-up" data-aos-delay="100">
-    <div class="card p-6 flex flex-col items-center">
-      <h3 class="text-2xl font-semibold mb-2">User</h3>
-      <img id="user-avatar" class="w-20 h-20 rounded-full mb-2" src="" alt="Avatar" />
-      <p class="text-lg font-medium" id="user-id"></p>
-    </div>
-    <div class="card p-6 flex flex-col items-center" data-aos="fade-up" data-aos-delay="200">
-      <h3 class="text-2xl font-semibold mb-2">Server</h3>
-      <p class="text-lg font-medium" id="server-name"></p>
-    </div>
-    <div class="card p-6 flex flex-col items-center" data-aos="fade-up" data-aos-delay="300">
-      <h3 class="text-2xl font-semibold mb-2">Date</h3>
-      <p class="text-lg font-medium" id="report-date"></p>
-    </div>
-    <div class="card p-6 flex flex-col items-center" data-aos="fade-up" data-aos-delay="400">
-      <h3 class="text-2xl font-semibold mb-2">Data Points</h3>
-      <p class="text-lg font-medium" id="data-count"></p>
-    </div>
-  </section>
+        // Parse series data for pie
+        function getSeriesData() {
+            const ovrParam = urlParams.get('ovr') || '[]';
+            const arr = JSON.parse(ovrParam);
+            const labels = ['Managed Ruleset','HTTP DDoS','Successrl','Security Level','Custom Rules'];
+            return arr.map((v,i) => ({ name: labels[i] || 'Other', y: parseFloat(v) }));
+        }
 
-  <!-- Charts Section -->
-  <section id="charts" class="max-w-7xl mx-auto px-6 mb-16">
-    <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center section-title" data-aos="fade-up">Graph</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div class="card p-6" data-aos="zoom-in" data-aos-delay="100">
-        <h3 class="text-xl font-semibold mb-4">Source Distribution</h3>
-        <canvas id="chart-source"></canvas>
-      </div>
-      <div class="card p-6" data-aos="zoom-in" data-aos-delay="200">
-        <h3 class="text-xl font-semibold mb-4">Country Distribution</h3>
-        <canvas id="chart-nation"></canvas>
-      </div>
-      <div class="card p-6 md:col-span-2" data-aos="zoom-in" data-aos-delay="300">
-        <h3 class="text-xl font-semibold mb-4">ASN Distribution</h3>
-        <canvas id="chart-asn"></canvas>
-      </div>
-    </div>
-  </section>
+        // Parse nation data for bar
+        async function getNationData() {
+            const nationParam = urlParams.get('nation') || '[]';
+            const codes = JSON.parse(nationParam);
+            const names = ['Vietnam','Brazil','U-States','Portugal','Thailand'];
+            return codes.map((v,i) => ({ name: names[i]||'N/A', y: parseFloat(v) }));
+        }
 
-  <!-- About Section -->
-  <footer id="about" class="bg-white py-8">
-    <div class="max-w-4xl mx-auto text-center text-gray-600" data-aos="fade-up">
-      <p>Powered by <strong>Aiko Analytics</strong>. Built with ❤️ using <a href="https://chartjs.org/" class="text-pink-500 hover:underline">LOVE</a> and <a href="https://tailwindcss.com/" class="text-pink-500 hover:underline">GAY2882</a>.</p>
-    </div>
-  </footer>
+        // Parse ASN table data
+        function getASNData() {
+            const asnParam = urlParams.get('asn') || '[]';
+            return JSON.parse(asnParam).map(s => s.split(':')).map(arr => ({ name: arr[0], count: arr[1] }));
+        }
 
-  <script>
-    AOS.init({ duration: 800, once: true });
+        Highcharts.chart('container-pie', {
+            chart: { type: 'pie', backgroundColor: '#FFFFFF', plotBorderWidth: 0 },
+            title: { text: null },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF',
+                    dataLabels: { enabled: true, format: '{point.y}%', distance: -40, style: { fontSize: '14px' } },
+                    showInLegend: false
+                }
+            },
+            series: [{ name: 'Overall', colorByPoint: true, data: getSeriesData() }],
+            credits: { enabled: false }
+        });
 
-    function parseList(param) { return param ? param.replace(/\[|\]/g, '').split(',').filter(s => s) : []; }
-    const q = new URLSearchParams(window.location.search);
-    const userId = q.get('user_id') || '—';
-    const avatar = q.get('avatar') || '';
-    const server = q.get('sv') || '—';
-    const date = q.get('date') || '—';
-    const sources = parseList(q.get('ovr'));
-    const nations = parseList(q.get('nation'));
-    const asns = parseList(q.get('asn'));
+        getNationData().then(data => {
+            Highcharts.chart('container-bar', {
+                chart: { type: 'bar', backgroundColor: '#FFFFFF', plotBorderWidth: 0 },
+                title: { text: null },
+                xAxis: { categories: data.map(d=>d.name), title: { text: null } },
+                yAxis: { min: 0, title: { text: null }, gridLineDashStyle: 'Dash' },
+                plotOptions: {
+                    bar: { dataLabels: { enabled: true, align: 'right', format: '{point.y}', style: { fontSize: '13px' } } }
+                },
+                series: [{ name: 'Count', data: data.map(d=>d.y), color: '#3C8DBC' }],
+                credits: { enabled: false },
+                legend: { enabled: false }
+            });
+        });
 
-    document.getElementById('user-id').textContent = userId;
-    document.getElementById('user-avatar').src = avatar;
-    document.getElementById('server-name').textContent = server;
-    document.getElementById('report-date').textContent = date;
-    document.getElementById('data-count').textContent = sources.length;
-
-    function countItems(arr) { return arr.reduce((acc, cur) => (acc[cur] = (acc[cur] || 0) + 1, acc), {}); }
-    const sourceCounts = countItems(sources);
-    const nationCounts = countItems(nations);
-    const asnCounts = countItems(asns);
-
-    function renderChart(id, counts) {
-      const ctx = document.getElementById(id).getContext('2d');
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts) }] },
-        options: { responsive: true, animation: { animateScale: true }, plugins: { legend: { position: 'bottom' } } }
-      });
-    }
-
-    renderChart('chart-source', sourceCounts);
-    renderChart('chart-nation', nationCounts);
-    renderChart('chart-asn', asnCounts);
-  </script>
+        // Render ASN tables
+        const asn = getASNData();
+        const left = document.querySelector('#table-1 tbody');
+        const right = document.querySelector('#table-2 tbody');
+        asn.forEach((item,i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i+1}</td><td>${item.name}</td><td>${item.count.toLocaleString()}</td>`;
+            if (i<5) left.appendChild(tr); else right.appendChild(tr);
+        });
+    </script>
 </body>
 </html>
