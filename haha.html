@@ -169,24 +169,33 @@
     document.getElementById('date-text').textContent = date;
 
     function getSeriesData() {
-      const raw = parsePythonList(urlParams.get('ovr'));
-      return raw.map(source => {
+    const raw = parsePythonList(urlParams.get('ovr'));
+    const colorMap = {
+        'Managed Ruleset': '#1f77b4',
+        'HTTP DDoS': '#ff7f0e',
+        'Successful': '#2ca02c',
+        'Security Level': '#17becf',
+        'Custom Rules': '#ffcd00'
+    };
+
+    return raw.map(source => {
         const [key, val] = source.split('-');
         const nameMap = {
-          m: 'Managed Ruleset',
-          s: 'Security Level',
-          r: 'Rate Limit',
-          l7: 'HTTP DDoS',
-          bic: 'Browser Integrity Check',
-          firewallCustom: 'Custom Rules',
-          firewallManaged: 'Managed Rules',
-          botFight: 'Bot Fight Mode',
-          pass: 'Successful'
+            m: 'Managed Ruleset',
+            s: 'Security Level',
+            l7: 'HTTP DDoS',
+            pass: 'Successful',
+            firewallCustom: 'Custom Rules'
         };
-        const name = Object.keys(nameMap).find(prefix => key.startsWith(prefix)) || key;
-        return { name: nameMap[name] || name, y: parseFloat(val) };
-      });
-    }
+        const prefix = Object.keys(nameMap).find(p => key.startsWith(p)) || key;
+        const name = nameMap[prefix] || key;
+        return {
+            name,
+            y: parseFloat(val),
+            color: colorMap[name] || undefined  // set màu nếu có
+        };
+    });
+}
 
     async function getNationData() {
       const raw = parsePythonList(urlParams.get('nation'));
