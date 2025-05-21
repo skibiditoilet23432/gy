@@ -115,7 +115,7 @@
                 <span class="title">Premium Statistics</span>
             </div>
             <div class="meta">
-                <div id="server-text">Cloudflare-Pro</div>
+                <div id="server-text">CloudflareEntreprise</div>
                 <div id="date-text">Aug 18, 2024</div>
             </div>
         </div>
@@ -150,33 +150,59 @@
     </div>
 
     <script>
-        // Utility to read URL params
+        function parsePythonList(param) {
+            if (!param || param === 'NULL') return [];
+            return param.slice(1, -1).split(',').map(x => x.trim().replace(/^['"]|['"]$/g, ''));
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const sv = urlParams.get('sv') || 'NULL';
         const date = urlParams.get('date') || 'NULL';
         document.getElementById('server-text').textContent = sv;
         document.getElementById('date-text').textContent = date;
 
-        // Parse series data for pie
         function getSeriesData() {
-            const ovrParam = urlParams.get('ovr') || '[]';
-            const arr = JSON.parse(ovrParam);
-            const labels = ['Managed Ruleset','HTTP DDoS','Successrl','Security Level','Custom Rules'];
-            return arr.map((v,i) => ({ name: labels[i] || 'Other', y: parseFloat(v) }));
+            const raw = parsePythonList(urlParams.get('ovr'));
+            return raw.map(source => {
+                const [key, val] = source.split('-');
+                const nameMap = {
+                    m: 'Managed Ruleset',
+                    s: 'Security Level',
+                    r: 'Rate Limit',
+                    l7: 'HTTP DDoS',
+                    bic: 'Browser Integrity Check',
+                    firewallCustom: 'Custom Rules',
+                    firewallManaged: 'Managed Rules',
+                    botFight: 'Bot Fight Mode',
+                    pass: 'Successful'
+                };
+                const name = Object.keys(nameMap).find(prefix => key.startsWith(prefix)) || key;
+                return { name: nameMap[name] || name, y: parseFloat(val) };
+            });
         }
 
-        // Parse nation data for bar
         async function getNationData() {
-            const nationParam = urlParams.get('nation') || '[]';
-            const codes = JSON.parse(nationParam);
-            const names = ['Vietnam','Brazil','U-States','Portugal','Thailand'];
-            return codes.map((v,i) => ({ name: names[i]||'N/A', y: parseFloat(v) }));
+            const raw = parsePythonList(urlParams.get('nation'));
+            const data = await Promise.all(raw.map(async entry => {
+                const [code, count] = entry.split('-');
+                try {
+                    const res = await fetch(`https://restcountries.com/v3.1/alpha/${code}`);
+                    const json = await res.json();
+                    const name = json[0]?.name?.common || code;
+                    return { name, y: parseFloat(count) };
+                } catch {
+                    return { name: code, y: parseFloat(count) };
+                }
+            }));
+            return data.sort((a, b) => b.y - a.y);
         }
 
-        // Parse ASN table data
         function getASNData() {
-            const asnParam = urlParams.get('asn') || '[]';
-            return JSON.parse(asnParam).map(s => s.split(':')).map(arr => ({ name: arr[0], count: arr[1] }));
+            const raw = parsePythonList(urlParams.get('asn'));
+            return raw.map(entry => {
+                const [asnCode, count] = entry.replace(/^AS/, '').split('-');
+                return { name: 'AS' + asnCode, count: parseInt(count) };
+            });
         }
 
         Highcharts.chart('container-pie', {
@@ -211,7 +237,6 @@
             });
         });
 
-        // Render ASN tables
         const asn = getASNData();
         const left = document.querySelector('#table-1 tbody');
         const right = document.querySelector('#table-2 tbody');
