@@ -1,249 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-    <title>Premium Statistics</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+  <title>Premium Statistics</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #F4F6F8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Courier Prime', monospace;
-        }
-        .dashboard {
-            width: 960px;
-            background-color: #FFFFFF;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #243B63 0%, #1C2C5B 100%);
-            color: #FFFFFF;
-            padding: 24px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .brand {
-            display: flex;
-            flex-direction: column;
-        }
-        .brand .logo {
-            font-size: 16px;
-            font-weight: bold;
-            color: #6CA0DC;
-        }
-        .brand .title {
-            font-size: 36px;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-        .meta {
-            text-align: right;
-            font-size: 16px;
-            line-height: 1.4;
-        }
-        .content {
-            padding: 0 32px 32px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-gap: 24px;
-            margin-top: -16px; /* overlap header base */
-        }
-        .card {
-            background-color: #FFFFFF;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: relative;
-        }
-        .card:first-of-type {
-            margin-top: 16px;
-        }
-        .card h3 {
-            margin: 0 0 12px;
-            font-size: 20px;
-            font-weight: 500;
-            color: #1C2C5B;
-        }
-        .charts .card {
-            height: 340px;
-        }
-        #container-pie, #container-bar {
-            width: 100%;
-            height: calc(100% - 36px); /* account for title space */
-        }
-        .tables {
-            grid-column: 1 / span 2;
-            display: flex;
-            gap: 24px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 14px;
-        }
-        th, td {
-            border-bottom: 1px dashed #CCC;
-            padding: 10px 8px;
-            text-align: left;
-        }
-        th {
-            font-weight: 600;
-            color: #555;
-        }
-        td:last-child, th:last-child {
-            text-align: right;
-        }
-    </style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F4F6F8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Courier Prime', monospace;
+    }
+
+    .dashboard {
+      width: 860px;
+      background-color: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #243B63 0%, #1C2C5B 100%);
+      color: #FFFFFF;
+      padding: 20px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand .logo {
+      font-size: 14px;
+      font-weight: bold;
+      color: #6CA0DC;
+    }
+
+    .brand .title {
+      font-size: 30px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .meta {
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .content {
+      padding: 0 28px 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      margin-top: -14px;
+    }
+
+    .card {
+      background-color: #FFFFFF;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #1C2C5B;
+    }
+
+    .charts .card {
+      height: 300px;
+    }
+
+    #container-pie, #container-bar {
+      width: 100%;
+      height: calc(100% - 30px);
+    }
+
+    .tables {
+      grid-column: 1 / span 2;
+      display: flex;
+      gap: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px dashed #CCC;
+      padding: 8px 6px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      color: #666;
+    }
+
+    td:last-child, th:last-child {
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <div class="brand">
-                <span class="logo">AIKO</span>
-                <span class="title">Premium Statistics</span>
-            </div>
-            <div class="meta">
-                <div id="server-text">CloudflareEntreprise</div>
-                <div id="date-text">Aug 18, 2024</div>
-            </div>
-        </div>
-        <div class="content">
-            <div class="card charts">
-                <h3>Overall</h3>
-                <div id="container-pie"></div>
-            </div>
-            <div class="card charts">
-                <h3>Top Nation's IP</h3>
-                <div id="container-bar"></div>
-            </div>
-            <div class="tables">
-                <div class="card">
-                    <table id="table-1">
-                        <thead>
-                            <tr><th>#</th><th>ASN</th><th>Count</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div class="card">
-                    <table id="table-2">
-                        <thead>
-                            <tr><th>#</th><th>ASN</th><th>Count</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="dashboard">
+    <div class="header">
+      <div class="brand">
+        <span class="logo">AIKO</span>
+        <span class="title">Premium Statistics</span>
+      </div>
+      <div class="meta">
+        <div id="server-text">CloudflareEntreprise</div>
+        <div id="date-text">Aug 18, 2024</div>
+      </div>
     </div>
+    <div class="content">
+      <div class="card charts">
+        <h3>Overall</h3>
+        <div id="container-pie"></div>
+      </div>
+      <div class="card charts">
+        <h3>Top Nation's IP</h3>
+        <div id="container-bar"></div>
+      </div>
+      <div class="tables">
+        <div class="card">
+          <table id="table-1">
+            <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <table id="table-2">
+            <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        function parsePythonList(param) {
-            if (!param || param === 'NULL') return [];
-            return param.slice(1, -1).split(',').map(x => x.trim().replace(/^['"]|['"]$/g, ''));
+  <script>
+    function parsePythonList(param) {
+      if (!param || param === 'NULL') return [];
+      return param.slice(1, -1).split(',').map(x => x.trim().replace(/^['"]|['"]$/g, ''));
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sv = urlParams.get('sv') || 'NULL';
+    const date = urlParams.get('date') || 'NULL';
+    document.getElementById('server-text').textContent = sv;
+    document.getElementById('date-text').textContent = date;
+
+    function getSeriesData() {
+      const raw = parsePythonList(urlParams.get('ovr'));
+      return raw.map(source => {
+        const [key, val] = source.split('-');
+        const nameMap = {
+          m: 'Managed Ruleset',
+          s: 'Security Level',
+          r: 'Rate Limit',
+          l7: 'HTTP DDoS',
+          bic: 'Browser Integrity Check',
+          firewallCustom: 'Custom Rules',
+          firewallManaged: 'Managed Rules',
+          botFight: 'Bot Fight Mode',
+          pass: 'Successful'
+        };
+        const name = Object.keys(nameMap).find(prefix => key.startsWith(prefix)) || key;
+        return { name: nameMap[name] || name, y: parseFloat(val) };
+      });
+    }
+
+    async function getNationData() {
+      const raw = parsePythonList(urlParams.get('nation'));
+      const data = await Promise.all(raw.map(async entry => {
+        const [code, count] = entry.split('-');
+        try {
+          const res = await fetch(`https://restcountries.com/v3.1/alpha/${code}`);
+          const json = await res.json();
+          const name = json[0]?.name?.common || code;
+          return { name, y: parseFloat(count) };
+        } catch {
+          return { name: code, y: parseFloat(count) };
         }
+      }));
+      return data.sort((a, b) => b.y - a.y);
+    }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const sv = urlParams.get('sv') || 'NULL';
-        const date = urlParams.get('date') || 'NULL';
-        document.getElementById('server-text').textContent = sv;
-        document.getElementById('date-text').textContent = date;
+    function getASNData() {
+      const raw = parsePythonList(urlParams.get('asn'));
+      return raw.map(entry => {
+        const [asnCode, count] = entry.replace(/^AS/, '').split('-');
+        return { name: 'AS' + asnCode, count: parseInt(count) };
+      });
+    }
 
-        function getSeriesData() {
-            const raw = parsePythonList(urlParams.get('ovr'));
-            return raw.map(source => {
-                const [key, val] = source.split('-');
-                const nameMap = {
-                    m: 'Managed Ruleset',
-                    s: 'Security Level',
-                    r: 'Rate Limit',
-                    l7: 'HTTP DDoS',
-                    bic: 'Browser Integrity Check',
-                    firewallCustom: 'Custom Rules',
-                    firewallManaged: 'Managed Rules',
-                    botFight: 'Bot Fight Mode',
-                    pass: 'Successful'
-                };
-                const name = Object.keys(nameMap).find(prefix => key.startsWith(prefix)) || key;
-                return { name: nameMap[name] || name, y: parseFloat(val) };
-            });
+    Highcharts.chart('container-pie', {
+      chart: {
+        type: 'pie',
+        backgroundColor: '#FFFFFF',
+        plotBorderWidth: 0
+      },
+      title: { text: null },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          borderWidth: 2,
+          borderColor: '#FFFFFF',
+          dataLabels: {
+            enabled: true,
+            format: '{point.y}%',
+            distance: -30,
+            style: {
+              fontSize: '13px',
+              color: '#FFFFFF',
+              textOutline: '0px'
+            }
+          },
+          showInLegend: false
         }
+      },
+      series: [{
+        name: 'Overall',
+        colorByPoint: true,
+        data: getSeriesData()
+      }],
+      credits: { enabled: false }
+    });
 
-        async function getNationData() {
-            const raw = parsePythonList(urlParams.get('nation'));
-            const data = await Promise.all(raw.map(async entry => {
-                const [code, count] = entry.split('-');
-                try {
-                    const res = await fetch(`https://restcountries.com/v3.1/alpha/${code}`);
-                    const json = await res.json();
-                    const name = json[0]?.name?.common || code;
-                    return { name, y: parseFloat(count) };
-                } catch {
-                    return { name: code, y: parseFloat(count) };
-                }
-            }));
-            return data.sort((a, b) => b.y - a.y);
-        }
+    getNationData().then(data => {
+      Highcharts.chart('container-bar', {
+        chart: {
+          type: 'bar',
+          backgroundColor: '#FFFFFF',
+          plotBorderWidth: 0
+        },
+        title: { text: null },
+        xAxis: {
+          categories: data.map(d => d.name),
+          title: { text: null },
+          labels: {
+            style: {
+              color: '#1C2C5B',
+              fontSize: '13px'
+            }
+          }
+        },
+        yAxis: {
+          min: 0,
+          title: { text: null },
+          gridLineDashStyle: 'Dash',
+          labels: {
+            style: {
+              color: '#1C2C5B',
+              fontSize: '12px'
+            }
+          }
+        },
+        plotOptions: {
+          bar: {
+            dataLabels: {
+              enabled: true,
+              align: 'right',
+              format: '{point.y}',
+              style: {
+                fontSize: '12px',
+                color: '#1C2C5B',
+                textOutline: '0px'
+              }
+            }
+          }
+        },
+        series: [{ name: 'Count', data: data.map(d => d.y), color: '#3C8DBC' }],
+        credits: { enabled: false },
+        legend: { enabled: false }
+      });
+    });
 
-        function getASNData() {
-            const raw = parsePythonList(urlParams.get('asn'));
-            return raw.map(entry => {
-                const [asnCode, count] = entry.replace(/^AS/, '').split('-');
-                return { name: 'AS' + asnCode, count: parseInt(count) };
-            });
-        }
-
-        Highcharts.chart('container-pie', {
-            chart: { type: 'pie', backgroundColor: '#FFFFFF', plotBorderWidth: 0 },
-            title: { text: null },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    borderWidth: 2,
-                    borderColor: '#FFFFFF',
-                    dataLabels: { enabled: true, format: '{point.y}%', distance: -40, style: { fontSize: '14px' } },
-                    showInLegend: false
-                }
-            },
-            series: [{ name: 'Overall', colorByPoint: true, data: getSeriesData() }],
-            credits: { enabled: false }
-        });
-
-        getNationData().then(data => {
-            Highcharts.chart('container-bar', {
-                chart: { type: 'bar', backgroundColor: '#FFFFFF', plotBorderWidth: 0 },
-                title: { text: null },
-                xAxis: { categories: data.map(d=>d.name), title: { text: null } },
-                yAxis: { min: 0, title: { text: null }, gridLineDashStyle: 'Dash' },
-                plotOptions: {
-                    bar: { dataLabels: { enabled: true, align: 'right', format: '{point.y}', style: { fontSize: '13px' } } }
-                },
-                series: [{ name: 'Count', data: data.map(d=>d.y), color: '#3C8DBC' }],
-                credits: { enabled: false },
-                legend: { enabled: false }
-            });
-        });
-
-        const asn = getASNData();
-        const left = document.querySelector('#table-1 tbody');
-        const right = document.querySelector('#table-2 tbody');
-        asn.forEach((item,i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${i+1}</td><td>${item.name}</td><td>${item.count.toLocaleString()}</td>`;
-            if (i<5) left.appendChild(tr); else right.appendChild(tr);
-        });
-    </script>
+    const asn = getASNData();
+    const left = document.querySelector('#table-1 tbody');
+    const right = document.querySelector('#table-2 tbody');
+    asn.forEach((item, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.count.toLocaleString()}</td>`;
+      if (i < 5) left.appendChild(tr); else right.appendChild(tr);
+    });
+  </script>
 </body>
 </html>
