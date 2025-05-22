@@ -1,277 +1,301 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cloudflare Statistics (Dark Mode)</title>
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
-
-    :root {
-      --bg-color: #111827;
-      --card-color: #1F2937;
-      --text-color: #F9FAFB;
-      --highlight: #FACC15;
-      --accent: #3B82F6;
-      --box-shadow: rgba(0, 0, 0, 0.5);
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-color);
-      font-family: 'Courier Prime', monospace;
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .highcharts-figure {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: calc(100vh - 100px);
-      gap: 20px;
-    }
-
-    #top-container {
-      width: 960px;
-      height: 50px;
-      background-color: var(--card-color);
-      border-radius: 12px;
-      box-shadow: 0 0 10px var(--box-shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      font-weight: bold;
-    }
-
-    #top-container p {
-      margin: 0;
-      flex: 1;
-      text-align: center;
-    }
-
-    .highlight-box {
-      background-color: var(--highlight);
-      color: #1F2937;
-      border-radius: 9999px;
-      padding: 4px 16px;
-      font-weight: bold;
-    }
-
-    #container-pie, #container-bar {
-      background-color: var(--card-color);
-      border-radius: 12px;
-      box-shadow: 0 0 10px var(--box-shadow);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #container-pie {
-      width: 320px;
-      height: 320px;
-    }
-
-    #container-bar {
-      width: 600px;
-      height: 320px;
-    }
-
-    #container-table {
-      width: 920px;
-      background-color: var(--card-color);
-      border-radius: 12px;
-      box-shadow: 0 0 10px var(--box-shadow);
-      display: flex;
-      justify-content: space-around;
-      padding: 20px;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 45%;
-      color: var(--text-color);
-    }
-
-    th, td {
-      border: 1px dashed #374151;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #1E293B;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #111827;
-    }
-  </style>
-</head>
-<body>
-  <figure class="highcharts-figure">
-    <div id="top-container">
-      <p style="text-align: left;">DSTAT EUIS</p>
-      <p class="highlight-box">Premium Statistics</p>
-      <p id="right-text">Cloudflare-Pro</p>
-      <p id="date-text" style="text-align: right;">18/8/2024</p>
-    </div>
-    <div style="display: flex; gap: 20px;">
-      <div id="container-pie"></div>
-      <div id="container-bar"></div>
-    </div>
-    <div id="container-table">
-      <table id="table-1">
-        <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <table id="table-2">
-        <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </figure>
-
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const getParam = key => params.get(key) || 'NULL';
-
-    document.getElementById('right-text').textContent = getParam('sv');
-    document.getElementById('date-text').textContent = getParam('date');
-
-    async function loadASNData() {
-      try {
-        const res = await fetch('asn_data.json');
-        return await res.json();
-      } catch {
-        return [];
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloudflare Statistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Courier Prime', monospace;
       }
-    }
+    </style>
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex items-center justify-center p-4">
+    <div class="space-y-6 w-full max-w-6xl">
+      <!-- Top Container -->
+      <div id="top-container" class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-md px-6 py-3 font-bold text-sm md:text-base">
+        <p class="text-left">DSTAT EUIS</p>
+        <p class="bg-yellow-100 dark:bg-yellow-600 text-yellow-700 dark:text-yellow-100 px-4 py-1 rounded-full">Premium Statistics</p>
+        <p id="right-text" class="text-center">Cloudflare-Pro</p>
+        <p id="date-text" class="text-right">18/8/2024</p>
+      </div>
 
-    async function updateTable() {
-      const asnDataParam = getParam('asn');
-      const items = asnDataParam === 'NULL' ? ['AS0000-0'] : asnDataParam.slice(1, -1).split(',');
-      const asnData = await loadASNData();
-      const formatCount = c => c >= 1e6 ? (c / 1e6).toFixed(1) + 'M' : c >= 1e3 ? (c / 1e3).toFixed(1) + 'K' : c;
+      <!-- Charts Section -->
+      <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+        <div id="container-pie" class="w-[300px] h-[300px] bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center"></div>
+        <div id="container-bar" class="w-full max-w-xl h-[300px] bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center"></div>
+      </div>
 
-      const tableData = await Promise.all(items.map(async i => {
-        const [asn, countStr] = i.split('-');
-        const found = asnData.find(e => e.ASN === `AS${asn}`);
-        return {
-          name: found ? found['AS Name'] : 'Unknown',
-          count: +countStr,
-          formattedCount: formatCount(+countStr)
-        };
-      }));
+      <!-- Table Section -->
+      <div id="container-table" class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col md:flex-row gap-4 justify-between">
+        <table id="table-1" class="w-full md:w-1/2 table-auto text-sm">
+          <thead>
+            <tr>
+              <th class="border-b dark:border-gray-700 py-2 text-left">#</th>
+              <th class="border-b dark:border-gray-700 py-2 text-left">ASN</th>
+              <th class="border-b dark:border-gray-700 py-2 text-left">Count</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <table id="table-2" class="w-full md:w-1/2 table-auto text-sm">
+          <thead>
+            <tr>
+              <th class="border-b dark:border-gray-700 py-2 text-left">#</th>
+              <th class="border-b dark:border-gray-700 py-2 text-left">ASN</th>
+              <th class="border-b dark:border-gray-700 py-2 text-left">Count</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
 
-      while (tableData.length < 10) tableData.push({ name: '?', count: 0, formattedCount: '?' });
-      tableData.sort((a, b) => b.count - a.count);
-
-      const tables = [document.querySelector('#table-1 tbody'), document.querySelector('#table-2 tbody')];
-      tableData.forEach((item, i) => {
-        const row = `<tr><td>${i + 1}</td><td>${item.name}</td><td>${item.formattedCount}</td></tr>`;
-        tables[Math.floor(i / 5)].insertAdjacentHTML('beforeend', row);
-      });
-    }
-
-    function getSeriesData() {
-      const ovrParam = getParam('ovr');
-      if (ovrParam === 'NULL') return [{ name: 'NULL', y: 100 }];
-      const map = {
-        firewallCustom: 'Custom Rules',
-        m: 'Managed Ruleset',
-        s: 'Security Level',
-        r: 'Rate Limit',
-        l7: 'HTTP DDoS',
-        bic: 'Browser Integrity Check',
-        botFight: 'Bot Fight Mode',
-        firewallManaged: 'Managed Rules',
-        pass: 'Successful'
-      };
-      return ovrParam.slice(1, -1).split(',').map(s => {
-        const [key, val] = s.split('-');
-        return { name: map[key] || key, y: parseFloat(val) };
-      });
-    }
-
-    async function getNationData() {
-      const nationParam = getParam('nation');
-      if (nationParam === 'NULL') return [{ name: 'NULL', y: 100 }];
-      const codes = nationParam.slice(1, -1).split(',');
-      return await Promise.all(codes.map(async (c) => {
-        const [cc, cnt] = c.split('-');
-        try {
-          const res = await fetch(`https://restcountries.com/v3.1/alpha/${cc}`);
-          const data = await res.json();
-          return { name: data[0].name.common, y: +cnt };
-        } catch {
-          return { name: cc, y: +cnt };
-        }
-      })).then(res => res.sort((a, b) => b.y - a.y));
-    }
-
-    Highcharts.setOptions({
-      chart: {
-        backgroundColor: 'transparent',
-        style: { fontFamily: 'Courier Prime, monospace' }
-      },
-      title: { style: { color: '#F9FAFB' } },
-      xAxis: { labels: { style: { color: '#F9FAFB' } } },
-      yAxis: { labels: { style: { color: '#F9FAFB' } } },
-      legend: { itemStyle: { color: '#F9FAFB' } },
-      tooltip: { style: { color: '#F9FAFB' } }
-    });
-
-    Highcharts.chart('container-pie', {
-      chart: { type: 'pie', height: 290, width: 260 },
-      title: { text: 'Overall' },
-      plotOptions: {
-        pie: {
-          dataLabels: { enabled: false },
-          borderColor: '#111827',
-          borderWidth: 2
-        }
-      },
-      series: [{ name: 'Source', colorByPoint: true, data: getSeriesData() }],
-      credits: { enabled: false }
-    });
-
-    getNationData().then(data => {
-      Highcharts.chart('container-bar', {
-        chart: { type: 'bar' },
-        title: { text: "Top Nation's IP" },
-        xAxis: {
-          categories: data.map(d => d.name),
-          labels: {
-            formatter() {
-              return this.value.length > 16 ? this.value.slice(0, 8) + '…' : this.value;
+    <!-- SCRIPT -->
+    <script>
+        async function loadASNData() {
+            try {
+                const response = await fetch('asn_data.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error loading ASN data:', error);
+                return [];
             }
-          }
-        },
-        yAxis: { min: 0 },
-        plotOptions: {
-          bar: {
-            dataLabels: {
-              enabled: true,
-              style: { color: '#FACC15', fontWeight: 'bold' }
-            },
-            color: '#3B82F6'
-          }
-        },
-        legend: { enabled: false },
-        series: [{ name: 'Count', data: data.map(d => d.y) }],
-        credits: { enabled: false }
-      });
-    });
+        }
 
-    updateTable();
-  </script>
-</body>
+        async function getISPName(asnCode, asnData) {
+            const asnEntry = asnData.find(entry => entry.ASN === `AS${asnCode}`);
+            return asnEntry ? asnEntry["AS Name"] : 'Unknown ISP';
+        }
+
+        function formatCount(count) {
+            if (count >= 1e9) return (count / 1e9).toFixed(1) + 'B';
+            if (count >= 1e6) return (count / 1e6).toFixed(1) + 'M';
+            if (count >= 1e3) return (count / 1e3).toFixed(1) + 'K';
+            return count;
+        }
+
+        async function updateTable() {
+            const params = new URLSearchParams(window.location.search);
+            const asnParam = params.get('asn');
+            const asnDataParam = asnParam ? asnParam.slice(1, -1).split(',') : ['AS0000-0'];
+
+            const asnData = await loadASNData();
+
+            const tableData = await Promise.all(asnDataParam.map(async entry => {
+                const [asnCode, countStr] = entry.split('-');
+                const count = parseFloat(countStr);
+                const ispName = await getISPName(asnCode, asnData);
+                return { name: ispName, count: count, formattedCount: formatCount(count) };
+            }));
+
+            const maxRows = 10;
+            while (tableData.length < maxRows) {
+                tableData.push({ name: '?', count: 0, formattedCount: '?' });
+            }
+
+            tableData.sort((a, b) => b.count - a.count);
+
+            const tables = [
+                document.querySelector('#table-1 tbody'),
+                document.querySelector('#table-2 tbody')
+            ];
+
+            tableData.forEach((item, index) => {
+                const table = tables[Math.floor(index / 5)];
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${index + 1}</td><td>${item.name}</td><td>${item.formattedCount}</td>`;
+                table.appendChild(row);
+            });
+        }
+
+        updateTable();
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param) || 'NULL';
+        }
+
+        function getSeriesData() {
+            const ovrParam = getQueryParam('ovr');
+            if (ovrParam === 'NULL') {
+                return [{ name: 'NULL', y: 100 }];
+            }
+
+            function translateSource(source) {
+                if (source.startsWith('firewallCustom')) return 'Custom Rules';
+                if (source.startsWith('m')) return 'Managed Ruleset';
+                if (source.startsWith('s')) return 'Security Level';
+                if (source.startsWith('r')) return 'Rate Limit';
+                if (source.startsWith('l7')) return 'HTTP DDoS';
+                if (source.startsWith('bic')) return 'Browser Integrity Check';
+                if (source.startsWith('botFight')) return 'Bot Fight Mode';
+                if (source.startsWith('firewallManaged')) return 'Managed Rules';
+                if (source.startsWith('pass')) return 'Successful';
+                return source;
+            }
+
+            const sources = ovrParam.slice(1, -1).split(',');
+            return sources.map(source => {
+                const [sourceKey, value] = source.split('-');
+                return { name: translateSource(sourceKey), y: parseFloat(value) };
+            });
+        }
+
+        function getNationData() {
+            const nationParam = getQueryParam('nation');
+            if (nationParam === 'NULL') {
+                return [{ name: 'NULL', y: 100 }];
+            }
+
+            const nationCodes = nationParam.slice(1, -1).split(',');
+            const promises = nationCodes.map(async (code) => {
+                const [countryCode, count] = code.split('-');
+                try {
+                    const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+                    const data = await response.json();
+                    const countryName = data[0].name.common;
+                    return { name: countryName || countryCode, y: parseFloat(count) };
+                } catch {
+                    return { name: countryCode, y: parseFloat(count) };
+                }
+            });
+
+            return Promise.all(promises).then(results => {
+                results.sort((a, b) => b.y - a.y);
+                return results;
+            }).catch(() => [{ name: 'NULL', y: 100 }]);
+        }
+
+        document.getElementById('right-text').textContent = getQueryParam('sv');
+        document.getElementById('date-text').textContent = getQueryParam('date');
+
+        Highcharts.chart('container-pie', {
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent',
+                height: 295,
+                width: 240,
+            },
+            title: {
+                text: 'Overall',
+                style: { fontFamily: 'Avenir, monospace', fontSize: '22px', fontWeight: 'bold', color: 'var(--text-color, #333)' }
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+            },
+            legend: {
+                enabled: true,
+                layout: 'horizontal',
+                itemStyle: {
+                    fontFamily: 'Courier Prime, monospace',
+                    fontSize: '12px',
+                    color: 'var(--text-color, #333)'
+                },
+                labelFormatter: function () {
+                    return this.name + ' (' + this.percentage.toFixed(1) + '%)';
+                }
+            },
+            plotOptions: {
+                pie: {
+                    borderWidth: 2,
+                    dataLabels: {
+                        enabled: false
+                    }
+                },
+                series: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    borderRadius: 2,
+                    borderWidth: 2,
+                    animation: false,
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: 'Source',
+                colorByPoint: true,
+                data: getSeriesData(),
+            }],
+            credits: {
+                enabled: false
+            }
+        });
+
+        getNationData().then(data => {
+            Highcharts.chart('container-bar', {
+                chart: {
+                    type: 'bar',
+                    backgroundColor: 'transparent'
+                },
+                title: {
+                    text: "Top Nation's IP",
+                    style: {
+                        fontFamily: 'Avenir, monospace',
+                        fontSize: '22px',
+                        color: 'var(--text-color, #333)'
+                    }
+                },
+                xAxis: {
+                    categories: data.map(d => d.name),
+                    title: { text: null },
+                    labels: {
+                        formatter: function () {
+                            let label = this.value;
+                            return label.length > 16 ? label.substring(0, 8) + '…' : label;
+                        },
+                        style: {
+                            fontFamily: 'Courier Prime, monospace',
+                            color: 'var(--text-color, #333)'
+                        }
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: { text: null },
+                    labels: {
+                        style: {
+                            fontFamily: 'Courier Prime, monospace',
+                            color: 'var(--text-color, #333)'
+                        }
+                    },
+                    gridLineDashStyle: 'Dash'
+                },
+                tooltip: {
+                    valueSuffix: ' counts',
+                    style: {
+                        fontFamily: 'Courier Prime, monospace'
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        dataLabels: {
+                            enabled: true,
+                            align: 'center',
+                            format: '{y}',
+                            style: {
+                                fontSize: '13px',
+                                color: '#000',
+                                fontFamily: 'Courier Prime, monospace'
+                            }
+                        },
+                        color: '#62C7F8',
+                        animation: false
+                    }
+                },
+                legend: { enabled: false },
+                series: [{
+                    name: 'Count',
+                    data: data.map(d => d.y)
+                }],
+                credits: { enabled: false }
+            });
+        });
+    </script>
+  </body>
 </html>
