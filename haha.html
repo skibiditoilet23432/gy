@@ -24,16 +24,6 @@
         </div>
     </div>
 
-    <!-- Request Summary Card -->
-    <div class="bg-gradient-to-r from-purple-100 via-white to-indigo-100 dark:from-indigo-700 dark:via-gray-800 dark:to-purple-700 p-6 rounded-2xl shadow mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">Total Requests</p>
-                <p class="text-2xl font-bold text-blue-600 dark:text-white" id="total-requests">NULL</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Server Info -->
     <div class="mb-6 flex justify-between">
         <span class="text-lg font-semibold">Server: <span id="right-text">NULL</span></span>
@@ -111,7 +101,6 @@
                 return { name, count, formattedCount: formatCount(count) };
             }));
 
-            let total = 0;
             rows.sort((a, b) => b.count - a.count);
 
             const maxRows = 10;
@@ -125,10 +114,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td class="px-4 py-2">${i + 1}</td><td class="px-4 py-2">${row.name}</td><td class="px-4 py-2">${row.formattedCount}</td>`;
                 table.appendChild(tr);
-                total += row.count;
             });
-
-            document.getElementById('total-requests').textContent = formatCount(total);
         }
 
         function getQueryParam(key) {
