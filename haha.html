@@ -3,264 +3,305 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Premium Statistics</title>
+  <title>Cloudflare Stats</title>
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet" />
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
+
     body {
       margin: 0;
-      padding: 0;
-      background-color: #F4F6F8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Courier Prime', monospace;
+      padding: 20px;
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', sans-serif;
+      color: #222;
     }
 
-    .dashboard {
-      width: 720px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    .card {
+      max-width: 1000px;
+      margin: auto;
+      background-color: white;
+      border-radius: 20px;
       overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
     .header {
-      background: linear-gradient(135deg, #243B63 0%, #1C2C5B 100%);
-      color: #fff;
-      padding: 16px 22px;
+      background-color: #122c55;
+      color: white;
+      padding: 20px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .brand .logo {
-      font-size: 13px;
-      color: #6CA0DC;
+    .header .left h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
     }
 
-    .brand .title {
-      font-size: 22px;
-      margin-top: 2px;
+    .header .left h2 {
+      margin: 0;
+      font-size: 16px;
+      color: #81c1ff;
     }
 
-    .meta {
-      font-size: 13px;
+    .header .right {
       text-align: right;
     }
 
-    .content {
-      padding: 0 22px 22px;
+    .header .right div {
+      font-size: 16px;
+    }
+
+    .header .right span {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .charts {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-gap: 14px;
-      margin-top: -10px;
+      gap: 20px;
+      padding: 30px;
     }
 
-    .card {
+    .chart-box {
       background-color: #fff;
-      border-radius: 10px;
-      padding: 14px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    .card h3 {
-      font-size: 15px;
-      margin-bottom: 8px;
-      color: #1C2C5B;
-    }
-
-    .charts .card {
-      height: 240px;
-    }
-
-    #container-pie, #container-bar {
-      height: calc(100% - 26px);
+    .chart-box h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
     }
 
     .tables {
-      grid-column: 1 / span 2;
-      display: flex;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 0 30px 30px;
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
-      font-size: 12px;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      font-size: 14px;
     }
 
     th, td {
-      padding: 6px 4px;
-      border-bottom: 1px dashed #CCC;
+      padding: 10px;
+      border-bottom: 1px dashed #ccc;
       text-align: left;
     }
 
-    td:last-child, th:last-child {
-      text-align: right;
+    th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
+  <div class="card">
     <div class="header">
-      <div class="brand">
-        <span class="logo">AIKO</span>
-        <span class="title">Premium Statistics</span>
+      <div class="left">
+        <h2>DSTAT EUIS</h2>
+        <h1>Premium Statistics</h1>
       </div>
-      <div class="meta">
-        <div id="server-text">CloudflareEntreprise</div>
-        <div id="date-text">Aug 18, 2024</div>
+      <div class="right">
+        <div id="right-text">Cloudflare-Pro</div>
+        <span id="date-text">--/--/----</span>
       </div>
     </div>
-    <div class="content">
-      <div class="card charts">
-        <h3>Overall</h3>
-        <div id="container-pie"></div>
+
+    <div class="charts">
+      <div class="chart-box">
+        <h3>Overall Sources</h3>
+        <div id="container-pie" style="height: 250px;"></div>
       </div>
-      <div class="card charts">
+      <div class="chart-box">
         <h3>Top Nation's IP</h3>
-        <div id="container-bar"></div>
+        <div id="container-bar" style="height: 250px;"></div>
       </div>
-      <div class="tables">
-        <div class="card">
-          <table id="table-1">
-            <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <table id="table-2">
-            <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
+    </div>
+
+    <div class="tables">
+      <table id="table-1">
+        <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <table id="table-2">
+        <thead><tr><th>#</th><th>ASN</th><th>Count</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    function parsePythonList(param) {
-      if (!param || param === 'NULL') return [];
-      return param.slice(1, -1).split(',').map(x => x.trim().replace(/^['"]|['"]$/g, ''));
+    async function loadASNData() {
+      try {
+        const response = await fetch('asn_data.json');
+        return await response.json();
+      } catch {
+        return [];
+      }
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const sv = urlParams.get('sv') || 'NULL';
-    const date = urlParams.get('date') || 'NULL';
-    document.getElementById('server-text').textContent = sv;
-    document.getElementById('date-text').textContent = date;
+    async function getISPName(asnCode, data) {
+      const entry = data.find(e => e.ASN === `AS${asnCode}`);
+      return entry ? entry["AS Name"] : 'Unknown';
+    }
+
+    function formatCount(count) {
+      if (count >= 1e9) return (count / 1e9).toFixed(1) + 'B';
+      if (count >= 1e6) return (count / 1e6).toFixed(1) + 'M';
+      if (count >= 1e3) return (count / 1e3).toFixed(1) + 'K';
+      return count;
+    }
+
+    async function updateTable() {
+      const params = new URLSearchParams(location.search);
+      const asnParam = params.get('asn');
+      const asnList = asnParam ? asnParam.slice(1, -1).split(',') : [];
+      const data = await loadASNData();
+
+      const rows = await Promise.all(asnList.map(async (item) => {
+        const [code, cnt] = item.split('-');
+        return {
+          name: await getISPName(code, data),
+          count: parseFloat(cnt),
+          formatted: formatCount(cnt)
+        };
+      }));
+
+      rows.sort((a, b) => b.count - a.count);
+      while (rows.length < 10) rows.push({ name: '?', count: 0, formatted: '?' });
+
+      [document.querySelector('#table-1 tbody'), document.querySelector('#table-2 tbody')].forEach(t => t.innerHTML = '');
+      rows.forEach((r, i) => {
+        const tr = `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.formatted}</td></tr>`;
+        const target = i < 5 ? '#table-1' : '#table-2';
+        document.querySelector(`${target} tbody`).innerHTML += tr;
+      });
+    }
+
+    function getQueryParam(key) {
+      const params = new URLSearchParams(location.search);
+      return params.get(key) || 'NULL';
+    }
 
     function getSeriesData() {
-      const raw = parsePythonList(urlParams.get('ovr'));
-      const colorMap = {
-        'Managed Ruleset': '#1f77b4',
-        'HTTP DDoS': '#ff7f0e',
-        'Successful': '#2ca02c',
-        'Security Level': '#17becf',
-        'Custom Rules': '#ffcd00'
+      const ovr = getQueryParam('ovr');
+      if (ovr === 'NULL') return [{ name: 'NULL', y: 100 }];
+
+      const translate = key => {
+        if (key.startsWith('firewallCustom')) return 'Custom Rules';
+        if (key.startsWith('m')) return 'Managed Rules';
+        if (key.startsWith('s')) return 'Security Level';
+        if (key.startsWith('r')) return 'Rate Limit';
+        if (key.startsWith('l7')) return 'HTTP DDoS';
+        if (key.startsWith('bic')) return 'Browser Check';
+        if (key.startsWith('botFight')) return 'Bot Fight';
+        return key;
       };
-      return raw.map(source => {
-        const [key, val] = source.split('-');
-        const nameMap = {
-          m: 'Managed Ruleset',
-          s: 'Security Level',
-          l7: 'HTTP DDoS',
-          pass: 'Successful',
-          firewallCustom: 'Custom Rules'
-        };
-        const prefix = Object.keys(nameMap).find(p => key.startsWith(p)) || key;
-        const name = nameMap[prefix] || key;
-        return { name, y: parseFloat(val), color: colorMap[name] };
+
+      return ovr.slice(1, -1).split(',').map(p => {
+        const [k, v] = p.split('-');
+        return { name: translate(k), y: parseFloat(v) };
       });
     }
 
     async function getNationData() {
-      const raw = parsePythonList(urlParams.get('nation'));
-      const data = await Promise.all(raw.map(async entry => {
-        const [code, count] = entry.split('-');
+      const nat = getQueryParam('nation');
+      if (nat === 'NULL') return [{ name: 'NULL', y: 100 }];
+      const items = nat.slice(1, -1).split(',');
+
+      const data = await Promise.all(items.map(async item => {
+        const [cc, val] = item.split('-');
         try {
-          const res = await fetch(`https://restcountries.com/v3.1/alpha/${code}`);
+          const res = await fetch(`https://restcountries.com/v3.1/alpha/${cc}`);
           const json = await res.json();
-          const name = json[0]?.name?.common || code;
-          return { name, y: parseFloat(count) };
+          return { name: json[0].name.common, y: parseFloat(val) };
         } catch {
-          return { name: code, y: parseFloat(count) };
+          return { name: cc, y: parseFloat(val) };
         }
       }));
+
       return data.sort((a, b) => b.y - a.y);
     }
 
-    function getASNData() {
-      const raw = parsePythonList(urlParams.get('asn'));
-      return raw.map(entry => {
-        const [asnCode, count] = entry.replace(/^AS/, '').split('-');
-        return { name: 'AS' + asnCode, count: parseInt(count) };
-      });
-    }
+    document.getElementById('right-text').textContent = getQueryParam('sv');
+    document.getElementById('date-text').textContent = getQueryParam('date');
 
     Highcharts.chart('container-pie', {
-      chart: { type: 'pie', backgroundColor: '#fff' },
-      title: { text: null },
+      chart: {
+        type: 'pie',
+        backgroundColor: 'transparent'
+      },
+      title: { text: '' },
       plotOptions: {
         pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          borderColor: '#fff',
+          innerSize: '60%',
           dataLabels: {
             enabled: true,
-            format: '{point.y}%',
-            style: { fontSize: '12px', color: '#fff', textOutline: '0px' },
-            distance: -30
+            format: '{point.name}: {point.percentage:.1f}%'
           }
         }
       },
       series: [{
-        name: 'Overall',
-        colorByPoint: true,
-        data: getSeriesData()
+        name: 'Sources',
+        data: getSeriesData(),
+        colors: Highcharts.getOptions().colors.map((c, i) =>
+          Highcharts.color(c).brighten(i * 0.05).get()
+        )
       }],
       credits: { enabled: false }
     });
 
     getNationData().then(data => {
       Highcharts.chart('container-bar', {
-        chart: { type: 'bar', backgroundColor: '#fff' },
-        title: { text: null },
+        chart: { type: 'column', backgroundColor: 'transparent' },
+        title: { text: '' },
         xAxis: {
           categories: data.map(d => d.name),
-          labels: { style: { fontSize: '12px', color: '#1C2C5B' } }
+          crosshair: true
         },
         yAxis: {
           min: 0,
-          gridLineDashStyle: 'Dash',
-          labels: { style: { fontSize: '11px', color: '#1C2C5B' } },
-          title: { text: null }
+          title: { text: 'Counts' }
+        },
+        tooltip: {
+          shared: true,
+          useHTML: true,
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat:
+            '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+          footerFormat: '</table>'
         },
         plotOptions: {
-          bar: {
-            dataLabels: {
-              enabled: true,
-              format: '{point.y}',
-              style: { fontSize: '11px', color: '#1C2C5B', textOutline: '0px' }
-            }
+          column: {
+            borderRadius: 5,
+            dataLabels: { enabled: true }
           }
         },
-        series: [{ name: 'Count', data: data.map(d => d.y), color: '#3C8DBC' }],
-        legend: { enabled: false },
+        series: [{ name: 'IP Count', data: data }],
         credits: { enabled: false }
       });
     });
 
-    const asn = getASNData();
-    const left = document.querySelector('#table-1 tbody');
-    const right = document.querySelector('#table-2 tbody');
-    asn.forEach((item, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i + 1}</td><td>${item.name}</td><td>${item.count.toLocaleString()}</td>`;
-      (i < 5 ? left : right).appendChild(tr);
-    });
+    updateTable();
   </script>
 </body>
 </html>
