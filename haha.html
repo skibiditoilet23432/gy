@@ -1,61 +1,91 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cloudflare Statistics</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Statistics Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet" />
-    <style>
-      body {
-        font-family: 'Courier Prime', monospace;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex items-center justify-center p-4">
-    <div class="space-y-6 w-full max-w-6xl">
-      <!-- Top Container -->
-      <div id="top-container" class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-md px-6 py-3 font-bold text-sm md:text-base">
-        <p class="text-left">DSTAT EUIS</p>
-        <p class="bg-yellow-100 dark:bg-yellow-600 text-yellow-700 dark:text-yellow-100 px-4 py-1 rounded-full">Premium Statistics</p>
-        <p id="right-text" class="text-center">Cloudflare-Pro</p>
-        <p id="date-text" class="text-right">18/8/2024</p>
-      </div>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen p-6">
 
-      <!-- Charts Section -->
-      <div class="flex flex-col md:flex-row justify-center items-center gap-6">
-        <div id="container-pie" class="w-[300px] h-[300px] bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center"></div>
-        <div id="container-bar" class="w-full max-w-xl h-[300px] bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center"></div>
-      </div>
-
-      <!-- Table Section -->
-      <div id="container-table" class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col md:flex-row gap-4 justify-between">
-        <table id="table-1" class="w-full md:w-1/2 table-auto text-sm">
-          <thead>
-            <tr>
-              <th class="border-b dark:border-gray-700 py-2 text-left">#</th>
-              <th class="border-b dark:border-gray-700 py-2 text-left">ASN</th>
-              <th class="border-b dark:border-gray-700 py-2 text-left">Count</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <table id="table-2" class="w-full md:w-1/2 table-auto text-sm">
-          <thead>
-            <tr>
-              <th class="border-b dark:border-gray-700 py-2 text-left">#</th>
-              <th class="border-b dark:border-gray-700 py-2 text-left">ASN</th>
-              <th class="border-b dark:border-gray-700 py-2 text-left">Count</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <!-- Profile Card -->
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 mb-6 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center text-xl text-white">
+                <span>👤</span>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg" id="profile-name">NULL</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400" id="profile-username">@NULL</p>
+            </div>
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+            <span>Telegram UID: </span><span id="telegram-uid">NULL</span>
+        </div>
     </div>
 
-    <!-- SCRIPT -->
+    <!-- Request Summary Card -->
+    <div class="bg-gradient-to-r from-purple-100 via-white to-indigo-100 dark:from-indigo-700 dark:via-gray-800 dark:to-purple-700 p-6 rounded-2xl shadow mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">Total Requests</p>
+                <p class="text-2xl font-bold text-blue-600 dark:text-white" id="total-requests">NULL</p>
+            </div>
+            <div class="flex-grow ml-6">
+                <div class="w-full bg-gray-300 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
+                    <div class="h-3 bg-green-500" id="progress-allowed" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-300">
+                    <span class="text-green-600 dark:text-green-400">Allowed</span>
+                    <span class="text-blue-600 dark:text-blue-400">Bypassed</span>
+                    <span class="text-red-600 dark:text-red-400">Blocked</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Info -->
+    <div class="mb-6 flex justify-between">
+        <span class="text-lg font-semibold">Server: <span id="right-text">NULL</span></span>
+        <span class="text-lg font-semibold">Date: <span id="date-text">NULL</span></span>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+            <div id="container-pie" class="w-full h-72"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+            <div id="container-bar" class="w-full h-72"></div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <table id="table-1" class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">ISP</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">Count</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600"></tbody>
+        </table>
+
+        <table id="table-2" class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">#</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">ISP</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium uppercase">Count</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600"></tbody>
+        </table>
+    </div>
+
+    <!-- Your Preserved Script -->
     <script>
         async function loadASNData() {
             try {
@@ -109,12 +139,10 @@
             tableData.forEach((item, index) => {
                 const table = tables[Math.floor(index / 5)];
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${index + 1}</td><td>${item.name}</td><td>${item.formattedCount}</td>`;
+                row.innerHTML = `<td class="px-4 py-2">${index + 1}</td><td class="px-4 py-2">${item.name}</td><td class="px-4 py-2">${item.formattedCount}</td>`;
                 table.appendChild(row);
             });
         }
-
-        updateTable();
 
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -123,9 +151,7 @@
 
         function getSeriesData() {
             const ovrParam = getQueryParam('ovr');
-            if (ovrParam === 'NULL') {
-                return [{ name: 'NULL', y: 100 }];
-            }
+            if (ovrParam === 'NULL') return [{ name: 'NULL', y: 100 }];
 
             function translateSource(source) {
                 if (source.startsWith('firewallCustom')) return 'Custom Rules';
@@ -149,12 +175,10 @@
 
         function getNationData() {
             const nationParam = getQueryParam('nation');
-            if (nationParam === 'NULL') {
-                return [{ name: 'NULL', y: 100 }];
-            }
+            if (nationParam === 'NULL') return [{ name: 'NULL', y: 100 }];
 
             const nationCodes = nationParam.slice(1, -1).split(',');
-            const promises = nationCodes.map(async (code) => {
+            const promises = nationCodes.map(async code => {
                 const [countryCode, count] = code.split('-');
                 try {
                     const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
@@ -172,130 +196,60 @@
             }).catch(() => [{ name: 'NULL', y: 100 }]);
         }
 
+        // Update dynamic text
         document.getElementById('right-text').textContent = getQueryParam('sv');
         document.getElementById('date-text').textContent = getQueryParam('date');
+        document.getElementById('profile-name').textContent = getQueryParam('name');
+        document.getElementById('profile-username').textContent = "@" + getQueryParam('user');
+        document.getElementById('telegram-uid').textContent = getQueryParam('uid');
+        document.getElementById('total-requests').textContent = getQueryParam('total');
 
+        // Update progress bar
+        const allowed = parseFloat(getQueryParam('allow') || '100');
+        const bypass = parseFloat(getQueryParam('bypass') || '0');
+        const block = parseFloat(getQueryParam('block') || '0');
+        document.getElementById('progress-allowed').style.width = `${allowed}%`;
+
+        // Charts
         Highcharts.chart('container-pie', {
-            chart: {
-                type: 'pie',
-                backgroundColor: 'transparent',
-                height: 295,
-                width: 240,
-            },
-            title: {
-                text: 'Overall',
-                style: { fontFamily: 'Avenir, monospace', fontSize: '22px', fontWeight: 'bold', color: 'var(--text-color, #333)' }
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
-            },
-            legend: {
-                enabled: true,
-                layout: 'horizontal',
-                itemStyle: {
-                    fontFamily: 'Courier Prime, monospace',
-                    fontSize: '12px',
-                    color: 'var(--text-color, #333)'
-                },
-                labelFormatter: function () {
-                    return this.name + ' (' + this.percentage.toFixed(1) + '%)';
-                }
-            },
+            chart: { type: 'pie', backgroundColor: 'transparent', height: 295, width: 240 },
+            title: { text: 'Overall' },
+            tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+            legend: { enabled: true },
             plotOptions: {
-                pie: {
-                    borderWidth: 2,
-                    dataLabels: {
-                        enabled: false
-                    }
-                },
-                series: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    borderRadius: 2,
-                    borderWidth: 2,
-                    animation: false,
-                    showInLegend: true
-                }
+                pie: { dataLabels: { enabled: false }, borderWidth: 2 },
+                series: { animation: false, showInLegend: true }
             },
-            series: [{
-                name: 'Source',
-                colorByPoint: true,
-                data: getSeriesData(),
-            }],
-            credits: {
-                enabled: false
-            }
+            series: [{ name: 'Source', colorByPoint: true, data: getSeriesData() }],
+            credits: { enabled: false }
         });
 
         getNationData().then(data => {
             Highcharts.chart('container-bar', {
-                chart: {
-                    type: 'bar',
-                    backgroundColor: 'transparent'
-                },
-                title: {
-                    text: "Top Nation's IP",
-                    style: {
-                        fontFamily: 'Avenir, monospace',
-                        fontSize: '22px',
-                        color: 'var(--text-color, #333)'
-                    }
-                },
+                chart: { type: 'bar', backgroundColor: 'transparent' },
+                title: { text: "Top Nation's IP" },
                 xAxis: {
                     categories: data.map(d => d.name),
-                    title: { text: null },
-                    labels: {
-                        formatter: function () {
-                            let label = this.value;
-                            return label.length > 16 ? label.substring(0, 8) + '…' : label;
-                        },
-                        style: {
-                            fontFamily: 'Courier Prime, monospace',
-                            color: 'var(--text-color, #333)'
-                        }
-                    }
+                    labels: { formatter: function () {
+                        return this.value.length > 16 ? this.value.substring(0, 8) + '…' : this.value;
+                    }}
                 },
-                yAxis: {
-                    min: 0,
-                    title: { text: null },
-                    labels: {
-                        style: {
-                            fontFamily: 'Courier Prime, monospace',
-                            color: 'var(--text-color, #333)'
-                        }
-                    },
-                    gridLineDashStyle: 'Dash'
-                },
-                tooltip: {
-                    valueSuffix: ' counts',
-                    style: {
-                        fontFamily: 'Courier Prime, monospace'
-                    }
-                },
+                yAxis: { min: 0, gridLineDashStyle: 'Dash' },
+                tooltip: { valueSuffix: ' counts' },
                 plotOptions: {
                     bar: {
-                        dataLabels: {
-                            enabled: true,
-                            align: 'center',
-                            format: '{y}',
-                            style: {
-                                fontSize: '13px',
-                                color: '#000',
-                                fontFamily: 'Courier Prime, monospace'
-                            }
-                        },
+                        dataLabels: { enabled: true, format: '{y}' },
                         color: '#62C7F8',
                         animation: false
                     }
                 },
                 legend: { enabled: false },
-                series: [{
-                    name: 'Count',
-                    data: data.map(d => d.y)
-                }],
+                series: [{ name: 'Count', data: data.map(d => d.y) }],
                 credits: { enabled: false }
             });
         });
+
+        updateTable();
     </script>
-  </body>
+</body>
 </html>
