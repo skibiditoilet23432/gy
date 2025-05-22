@@ -149,19 +149,21 @@
   </div>
 
   <script>
-    async function loadASNData() {
-      try {
-        const response = await fetch('asn_data.json');
-        return await response.json();
-      } catch {
-        return [];
-      }
-    }
+   async function loadASNData() {
+            try {
+                const response = await fetch('asn_data.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error loading ASN data:', error);
+                return [];
+            }
+        }
 
-    async function getISPName(asnCode, data) {
-      const entry = data.find(e => e.ASN === `AS${asnCode}`);
-      return entry ? entry["AS Name"] : 'Unknown';
-    }
+   async function getISPName(asnCode, asnData) {
+            const asnEntry = asnData.find(entry => entry.ASN === `AS${asnCode}`);
+            return asnEntry ? asnEntry["AS Name"] : 'Unknown ISP';
+        }
 
     function formatCount(count) {
       if (count >= 1e9) return (count / 1e9).toFixed(1) + 'B';
@@ -171,30 +173,42 @@
     }
 
     async function updateTable() {
-      const params = new URLSearchParams(location.search);
-      const asnParam = params.get('asn');
-      const asnList = asnParam ? asnParam.slice(1, -1).split(',') : [];
-      const data = await loadASNData();
+            const params = new URLSearchParams(window.location.search);
+            const asnParam = params.get('asn');
+            const asnDataParam = asnParam ? asnParam.slice(1, -1).split(',') : ['AS0000-0'];
 
-      const rows = await Promise.all(asnList.map(async (item) => {
-        const [code, cnt] = item.split('-');
-        return {
-          name: await getISPName(code, data),
-          count: parseFloat(cnt),
-          formatted: formatCount(cnt)
-        };
-      }));
+            const asnData = await loadASNData();
 
-      rows.sort((a, b) => b.count - a.count);
-      while (rows.length < 10) rows.push({ name: '?', count: 0, formatted: '?' });
+            const tableData = await Promise.all(asnDataParam.map(async entry => {
+                const [asnCode, countStr] = entry.split('-');
+                const count = parseFloat(countStr);
+                const ispName = await getISPName(asnCode, asnData);
+                return { name: ispName, count: count, formattedCount: formatCount(count) };
+            }));
 
-      [document.querySelector('#table-1 tbody'), document.querySelector('#table-2 tbody')].forEach(t => t.innerHTML = '');
-      rows.forEach((r, i) => {
-        const tr = `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.formatted}</td></tr>`;
-        const target = i < 5 ? '#table-1' : '#table-2';
-        document.querySelector(`${target} tbody`).innerHTML += tr;
-      });
-    }
+            const maxRows = 10;
+            while (tableData.length < maxRows) {
+                tableData.push({ name: '?', count: 0, formattedCount: '?' });
+            }
+
+            tableData.sort((a, b) => b.count - a.count);
+
+            const tables = [
+                document.querySelector('#table-1 tbody'),
+                document.querySelector('#table-2 tbody')
+            ];
+
+            tableData.forEach((item, index) => {
+                const table = tables[Math.floor(index / 5)];
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${index + 1}</td><td>${item.name}</td><td>${item.formattedCount}</td>`;
+                table.appendChild(row);
+            });
+        }
+
+        updateTable();
+
+
 
     function getQueryParam(key) {
       const params = new URLSearchParams(location.search);
