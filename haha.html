@@ -219,38 +219,47 @@
       const ovr = getQueryParam('ovr');
       if (ovr === 'NULL') return [{ name: 'NULL', y: 100 }];
 
-      const translate = key => {
-        if (key.startsWith('firewallCustom')) return 'Custom Rules';
-        if (key.startsWith('m')) return 'Managed Rules';
-        if (key.startsWith('s')) return 'Security Level';
-        if (key.startsWith('r')) return 'Rate Limit';
-        if (key.startsWith('l7')) return 'HTTP DDoS';
-        if (key.startsWith('bic')) return 'Browser Check';
-        if (key.startsWith('botFight')) return 'Bot Fight';
-        return key;
-      };
+      function translateSource(source) {
+                if (source.startsWith('firewallCustom')) return 'Custom Rules';
+                if (source.startsWith('m')) return 'Managed Ruleset';
+                if (source.startsWith('s')) return 'Security Level';
+                if (source.startsWith('r')) return 'Rate Limit';
+                if (source.startsWith('l7')) return 'HTTP DDoS';
+                if (source.startsWith('bic')) return 'Browser Integrity Check';
+                if (source.startsWith('botFight')) return 'Bot Fight Mode';
+                if (source.startsWith('firewallManaged')) return 'Managed Rules';
+                if (source.startsWith('pass')) return 'Successful';
+                return source;
+            }
 
-      return ovr.slice(1, -1).split(',').map(p => {
-        const [k, v] = p.split('-');
-        return { name: translate(k), y: parseFloat(v) };
-      });
-    }
 
-    async function getNationData() {
-      const nat = getQueryParam('nation');
-      if (nat === 'NULL') return [{ name: 'NULL', y: 100 }];
-      const items = nat.slice(1, -1).split(',');
+            const sources = ovrParam.slice(1, -1).split(',');
+            const seriesData = sources.map(source => {
+                const [sourceKey, value] = source.split('-');
+                return { name: translateSource(sourceKey), y: parseFloat(value) }; // Chuyển đổi value thành số thực
+            });
 
-      const data = await Promise.all(items.map(async item => {
-        const [cc, val] = item.split('-');
-        try {
-          const res = await fetch(`https://restcountries.com/v3.1/alpha/${cc}`);
-          const json = await res.json();
-          return { name: json[0].name.common, y: parseFloat(val) };
-        } catch {
-          return { name: cc, y: parseFloat(val) };
+            return seriesData;
         }
-      }));
+
+   function getNationData() {
+            const nationParam = getQueryParam('nation');
+            if (nationParam === 'NULL') {
+                return [{ name: 'NULL', y: 100 }];
+            }
+
+            const nationCodes = nationParam.slice(1, -1).split(',');
+            const promises = nationCodes.map(async (code) => {
+                const [countryCode, count] = code.split('-');
+                try {
+                    const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+                    const data = await response.json();
+                    const countryName = data[0].name.common;
+                    return { name: countryName || countryCode, y: parseFloat(count) };
+                } catch {
+                    return { name: countryCode, y: parseFloat(count) };
+                }
+            });
 
       return data.sort((a, b) => b.y - a.y);
     }
