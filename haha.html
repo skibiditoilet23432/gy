@@ -178,10 +178,10 @@
             }).catch(() => [{ name: 'NULL', y: 100 }]);
         }
 
-        document.getElementById('avatar').src = '';        // gán URL ảnh Telegram
-        document.getElementById('username').textContent = ''; // gán tên người dùng
-        document.getElementById('handle').textContent = '';   // gán @username nếu có
-        document.getElementById('telegram-uid').textContent = ''; // gán Telegram user ID
+        document.getElementById('avatar').src = getQueryParam('avatar') !== 'NULL' ? getQueryParam('avatar') : 'https://i.ibb.co/6RVR24Zp/telegram.png';
+        document.getElementById('username').textContent = getQueryParam('username');
+        document.getElementById('handle').textContent = getQueryParam('handle');
+        document.getElementById('telegram-uid').textContent = getQueryParam('uid');
         document.getElementById('right-text').textContent = getQueryParam('sv');
         document.getElementById('date-text').textContent = getQueryParam('date');
 
