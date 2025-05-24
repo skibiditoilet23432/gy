@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloudflare Statistics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+</head>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+  <div class="max-w-5xl w-full p-4 space-y-6">
+    <!-- User Card -->
+    <div id="user-card" class="bg-white rounded-xl shadow-md p-4 flex items-center space-x-4">
+      <img id="avatar" src="https://i.ibb.co/6RVR24Zp/telegram.png" alt="Avatar" class="w-12 h-12 rounded-full bg-gray-200"/>
+      <div class="flex-1">
+        <h2 id="username" class="text-lg font-semibold text-gray-800"></h2>
+        <p id="handle" class="text-sm text-gray-500"></p>
+      </div>
+      <div class="flex items-center text-sm text-gray-600 space-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 240 240" fill="currentColor">
+          <path d="M120 0C53.73 0 0 53.73 0 120s53.73 120 120 120 120-53.73 120-120S186.27 0 120 0zm54.4 80.5l-18 85.3c-1.3 5.8-4.7 7.3-9.5 4.5l-26.3-19.4-12.7 12.2c-1.4 1.4-2.6 2.6-5.3 2.6l1.9-26.7 48.6-43.9c2.1-1.9-.5-3-3.3-1.1l-60.1 37.9-26-8.1c-5.6-1.7-5.7-5.6 1.2-8.3l101.8-39c4.7-1.8 8.8 1.1 7.3 8.1z"/>
+        </svg>
+        <span id="telegram-uid"></span>
+      </div>
+    </div>
+
+    <!-- Statistics Header -->
+    <div class="bg-white rounded-xl shadow-md p-4 flex items-center justify-between">
+      <h1 class="text-xl font-semibold text-gray-800">AIKO DSTAT</h1>
+      <span class="px-4 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">Cloudflare Statistics</span>
+      <span id="right-text" class="text-gray-600"></span>
+      <span id="date-text" class="text-gray-600"></span>
+    </div>
+
+    <!-- Charts -->
+    <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
+      <div id="container-pie" class="bg-white rounded-xl shadow-md flex-1 p-4"></div>
+      <div id="container-bar" class="bg-white rounded-xl shadow-md flex-1 p-4"></div>
+    </div>
+
+    <!-- Tables -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <table id="table-1" class="w-full table-auto text-left text-sm text-gray-700">
+          <thead class="bg-gray-200 text-gray-800">
+            <tr><th class="px-3 py-2">#</th><th class="px-3 py-2">ASN</th><th class="px-3 py-2">Count</th></tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200"></tbody>
+        </table>
+        <table id="table-2" class="w-full table-auto text-left text-sm text-gray-700">
+          <thead class="bg-gray-200 text-gray-800">
+            <tr><th class="px-3 py-2">#</th><th class="px-3 py-2">ASN</th><th class="px-3 py-2">Count</th></tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Original JS Scripts (unchanged logic, improved bar chart) -->
+  <script>
+    async function loadASNData() {
+        try {
+            const response = await fetch('asn_data.json');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error loading ASN data:', error);
+            return [];
+        }
+    }
+
+    async function getISPName(asnCode, asnData) {
+        const asnEntry = asnData.find(entry => entry.ASN === `AS${asnCode}`);
+        return asnEntry ? asnEntry["AS Name"] : 'Unknown ISP';
+    }
+
+    function formatCount(count) {
+        if (count >= 1e9) return (count / 1e9).toFixed(1) + 'B';
+        if (count >= 1e6) return (count / 1e6).toFixed(1) + 'M';
+        if (count >= 1e3) return (count / 1e3).toFixed(1) + 'K';
+        return count;
+    }
+
+    async function updateTable() {
+        const params = new URLSearchParams(window.location.search);
+        const asnParam = params.get('asn');
+        const asnDataParam = asnParam ? asnParam.slice(1, -1).split(',') : ['AS0000-0'];
+
+        const asnData = await loadASNData();
+
+        const tableData = await Promise.all(asnDataParam.map(async entry => {
+            const [asnCode, countStr] = entry.split('-');
+            const count = parseFloat(countStr);
+            const ispName = await getISPName(asnCode, asnData);
+            return { name: ispName, count: count, formattedCount: formatCount(count) };
+        }));
+
+        const maxRows = 10;
+        while (tableData.length < maxRows) {
+            tableData.push({ name: '?', count: 0, formattedCount: '?' });
+        }
+
+        tableData.sort((a, b) => b.count - a.count);
+
+        const tables = [
+            document.querySelector('#table-1 tbody'),
+            document.querySelector('#table-2 tbody')
+        ];
+
+        tables.forEach(t => t.innerHTML = '');
+        tableData.forEach((item, index) => {
+            const table = tables[Math.floor(index / 5)];
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${index + 1}</td><td>${item.name}</td><td>${item.formattedCount}</td>`;
+            table.appendChild(row);
+        });
+    }
+
+    updateTable();
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param) || 'NULL';
+    }
+
+    function getSeriesData() {
+        const ovrParam = getQueryParam('ovr');
+        if (ovrParam === 'NULL') {
+            return [{ name: 'NULL', y: 100 }];
+        }
+
+        function translateSource(source) {
+            if (source.startsWith('firewallCustom')) return 'Custom Rules';
+            if (source.startsWith('m')) return 'Managed Ruleset';
+            if (source.startsWith('s')) return 'Security Level';
+            if (source.startsWith('r')) return 'Rate Limit';
+            if (source.startsWith('l7')) return 'HTTP DDoS';
+            if (source.startsWith('bic')) return 'Browser Integrity Check';
+            if (source.startsWith('botFight')) return 'Bot Fight Mode';
+            if (source.startsWith('firewallManaged')) return 'Managed Rules';
+            if (source.startsWith('pass')) return 'Successful';
+            return source;
+        }
+
+        const sources = ovrParam.slice(1, -1).split(',');
+        const seriesData = sources.map(source => {
+            const [sourceKey, value] = source.split('-');
+            return { name: translateSource(sourceKey), y: parseFloat(value) };
+        });
+
+        return seriesData;
+    }
+
+    function getNationData() {
+        const nationParam = getQueryParam('nation');
+        if (nationParam === 'NULL') {
+            return [{ name: 'NULL', y: 100 }];
+        }
+
+        const nationCodes = nationParam.slice(1, -1).split(',');
+        const promises = nationCodes.map(async (code) => {
+            const [countryCode, count] = code.split('-');
+            try {
+                const response = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+                const data = await response.json();
+                const countryName = data[0].name.common;
+                return { name: countryName || countryCode, y: parseFloat(count) };
+            } catch {
+                return { name: countryCode, y: parseFloat(count) };
+            }
+        });
+
+        return Promise.all(promises).then(results => {
+            results.sort((a, b) => b.y - a.y);
+            return results;
+        }).catch(() => [{ name: 'NULL', y: 100 }]);
+    }
+
+    document.getElementById('avatar').src = getQueryParam('avatar') !== 'NULL' ? getQueryParam('avatar') : 'https://i.ibb.co/6RVR24Zp/telegram.png';
+    document.getElementById('username').textContent = getQueryParam('username');
+    document.getElementById('handle').textContent = getQueryParam('handle');
+    document.getElementById('telegram-uid').textContent = getQueryParam('uid');
+    document.getElementById('right-text').textContent = getQueryParam('sv');
+    document.getElementById('date-text').textContent = getQueryParam('date');
+
+    Highcharts.chart('container-pie', {
+        chart: {
+            type: 'pie',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+            height: 295,
+            width: 240,
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+        },
+        title: {
+            text: 'Overall',
+            style: { fontFamily: 'Avenir, monospace', fontSize: '22px', fontWeight: 'bold' }
+        },
+        legend: {
+            enabled: true,
+            layout: 'horizontal',
+            itemStyle: { fontFamily: 'Courier Prime, monospace', fontSize: '12px' },
+            labelFormatter: function() {
+                return this.name + ' (' + this.percentage.toFixed(1) + '%)';
+            }
+        },
+        plotOptions: {
+            pie: { borderWidth: 2, dataLabels: { enabled: false } },
+            series: { allowPointSelect: true, cursor: 'pointer', borderRadius: 2, borderWidth: 2, animation: false, showInLegend: true }
+        },
+        series: [{ name: 'Source', colorByPoint: true, data: getSeriesData() }],
+        credits: { enabled: false }
+    });
+
+    getNationData().then(data => {
+        Highcharts.chart('container-bar', {
+            chart: { type: 'column', backgroundColor: 'rgba(0,0,0,0)', height: 295 },
+            title: {
+                text: "Top Nations IP Count",
+                style: {
+                    fontFamily: 'Avenir, monospace',
+                    fontSize: '22px',
+                    fontWeight: 'bold',
+                    color: '#333'
+                }
+            },
+            xAxis: {
+                categories: data.map(d => d.name),
+                labels: {
+                    style: {
+                        fontFamily: 'Courier Prime, monospace',
+                        fontSize: '12px',
+                        color: '#4B5563'
+                    },
+                    rotation: -30
+                },
+                lineColor: '#E5E7EB',
+                tickColor: '#E5E7EB'
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'IP Count',
+                    style: {
+                        fontFamily: 'Courier Prime, monospace',
+                        color: '#6B7280'
+                    }
+                },
+                gridLineDashStyle: 'Dash',
+                labels: {
+                    style: {
+                        fontFamily: 'Courier Prime, monospace',
+                        color: '#6B7280'
+                    }
+                }
+            },
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                headerFormat: '<span style="font-size:13px">{point.key}</span><br/>',
+                pointFormat: '<span style="color:{series.color}">●</span> {series.name}: <b>{point.y}</b><br/>',
+                style: {
+                    fontFamily: 'Courier Prime, monospace',
+                    fontSize: '13px'
+                }
+            },
+            plotOptions: {
+                column: {
+                    borderRadius: 6,
+                    colorByPoint: true,
+                    colors: ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE', '#A5B4FC', '#818CF8', '#6366F1'],
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: '12px',
+                            fontFamily: 'Courier Prime, monospace',
+                            color: '#374151'
+                        }
+                    },
+                    animation: { duration: 1000 }
+                }
+            },
+            series: [{
+                name: 'IP Count',
+                data: data.map(d => d.y)
+            }],
+            credits: { enabled: false }
+        });
+    });
+  </script>
+</body>
+</html>
