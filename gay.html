@@ -1,222 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Request Count Graph</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Layer7 - DSTAT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              glass: 'rgba(255,255,255,0.1)',
+              darkGlass: 'rgba(0,0,0,0.4)',
+            }
+          }
+        }
+      }
+    </script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(to right, #0f0c29, #302b63, #24243e); /* Gradient background */
-        color: #e0e0e0;
-      }
-
-      .container {
-        max-width: 1000px;  /* Increased max-width for the container */
-        margin: 0 auto;
-        padding: 2em;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
-        border-radius: 15px;
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 30px;
-      }
-
-      .user-info img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 15px;
-      }
-
-      .user-info .telegram-icon {
-        width: 50px;
-        height: 50px;
-        margin-right: 15px;
-      }
-
-      .user-info span {
-        font-size: 18px;
-        color: #ffffff;
-        font-weight: bold;
-        margin-right: 15px; /* Spacing between username and user id */
-      }
-
-      .user-info .user-id {
-        color: #00ff7f; /* Green color for user ID */
-      }
-
-      .stats-container {
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        margin-bottom: 30px;
-      }
-
-      .stat-box {
-        position: relative;
-        background-color: rgba(128, 128, 128, 0.2); /* Light gray background */
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-        height: 100px;
-        width: 30%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        border-radius: 10px;
-      }
-
-      .stat-box i {
-        color: #00ff7f; /* Neon Green color for icons */
-        font-size: 40px;
-      }
-
-      .stat-box span {
-        position: absolute;
-        bottom: 10px;
-        width: 100%;
-        text-align: center;
-        font-size: 18px;
-        font-weight: bold;
-        color: #a0a0a0; /* Gray color for the labels */
-      }
-
-      .data {
-        font-size: 30px;
-        font-weight: bold;
-        color: #00ff7f; /* Green color for the numbers */
-        text-align: right;
-      }
-
-      #chart-container {
-        width: 100%;
-        margin-top: 2em;
-        background-color: rgba(0, 0, 0, 0.8); /* Black background for chart */
-        padding: 2em;
-        border-radius: 10px;
-      }
-
-      #chart {
-        width: 100%;
-        max-width: 900px;  /* Increased max-width of the chart */
-        height: 400px;
-      }
-    </style>
   </head>
+  <body class="bg-cover bg-fixed bg-center min-h-screen text-gray-100 flex items-center justify-center px-4" style="background-image: url('https://i.imgur.com/QK0fmb3.jpeg');">
+    
+    <div class="w-full max-w-6xl space-y-8">
+      <!-- Info -->
+      <h2 id="info" class="text-center text-2xl font-semibold"></h2>
 
-  <body>
-    <div class="container">
-      <!-- User Info Section -->
-      <div class="user-info">
-        <!-- Telegram Icon from Imgbb -->
-        <img src="https://i.ibb.co/6RVR24Zp/telegram.png" class="telegram-icon" alt="Telegram Icon">
-        <span id="user-name">Loading...</span>
-        <span id="user-id" class="user-id">Loading...</span>
+      <!-- Stats Card Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Average -->
+        <div class="flex flex-col justify-between p-5 rounded-2xl backdrop-blur-lg bg-glass dark:bg-darkGlass shadow-lg">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm uppercase tracking-wide">Average</p>
+              <p class="text-3xl font-bold mt-1" id="avg-data">...</p>
+            </div>
+            <i class="fas fa-chart-area text-4xl text-pink-400"></i>
+          </div>
+        </div>
+
+        <!-- Peak -->
+        <div class="flex flex-col justify-between p-5 rounded-2xl backdrop-blur-lg bg-glass dark:bg-darkGlass shadow-lg">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm uppercase tracking-wide">Peak</p>
+              <p class="text-3xl font-bold mt-1" id="peak-data">...</p>
+            </div>
+            <i class="fas fa-chart-line text-4xl text-yellow-400"></i>
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="flex flex-col justify-between p-5 rounded-2xl backdrop-blur-lg bg-glass dark:bg-darkGlass shadow-lg">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm uppercase tracking-wide">Total</p>
+              <p class="text-3xl font-bold mt-1" id="total-data">...</p>
+            </div>
+            <i class="fa-solid fa-dice-d20 text-4xl text-teal-400"></i>
+          </div>
+        </div>
       </div>
 
-      <div class="stats-container">
-        <div class="stat-box">
-          <i class="fas fa-chart-line"></i>
-          <div class="data" id="peak-data">Loading...</div>
-          <span>Peak Requests</span>
-        </div>
-
-        <div class="stat-box">
-          <i class="fas fa-calculator"></i>
-          <div class="data" id="avg-data">Loading...</div>
-          <span>Average Requests</span>
-        </div>
-
-        <div class="stat-box">
-          <i class="fas fa-chart-area"></i>
-          <div class="data" id="total-data">Loading...</div>
-          <span>Total Requests</span>
-        </div>
-      </div>
-
-      <div id="chart-container">
-        <div id="chart"></div>
+      <!-- Chart Card -->
+      <div class="rounded-2xl backdrop-blur-lg bg-glass dark:bg-darkGlass shadow-lg p-6">
+        <div id="chart" class="h-[400px] w-full"></div>
       </div>
     </div>
 
+    <!-- Script giữ nguyên -->
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const dataString = urlParams.get('data');
-      const user = urlParams.get('user');
-      const userId = urlParams.get('uid');
-      const avatarUrl = urlParams.get('avatar');
-      const rpsList = JSON.parse(dataString) || [];
-      
-      // Calculate total and average requests
-      const peakRequests = Math.round(Math.max(...rpsList)) || 'Loading...';  // Round to nearest integer
-      const totalRequests = Math.round(rpsList.reduce((acc, val) => acc + val, 0)) || 'Loading...';  // Round to nearest integer
-      const avgRequests = Math.round(rpsList.reduce((acc, val) => acc + val, 0) / rpsList.length) || 'Loading...';  // Round to nearest integer
+      window.onload = () => {
+        let info = document.getElementById("info");
+        const queryParams = new URLSearchParams(window.location.search);
+        const dataString = queryParams.get('data');
+        const user = queryParams.get('user'); 
+        let data = [];
+        if (dataString) {
+          try {
+            data = JSON.parse(dataString);
+          } catch(e) {
+            console.error('Error parsing data query to array', e);
+          }
+        }
 
-      // Display the values
-      document.getElementById('peak-data').textContent = peakRequests;
-      document.getElementById('total-data').textContent = totalRequests;
-      document.getElementById('avg-data').textContent = avgRequests;
-      document.getElementById('user-name').textContent = user;
-      document.getElementById('user-id').textContent = `ID: ${userId}`;
+        const totalRequests = data.reduce((acc, curr) => acc + curr, 0);
+        const peakRequests = Math.max(...data);
+        const averageRequests = (totalRequests / data.length) || 0; 
 
-      Highcharts.chart('chart', {
-        chart: {
-          type: 'line',
-          backgroundColor: '#000000',  // Black background for the chart
-        },
-        title: {
-          text: 'Request Count Over Time',
-          style: {
-            color: '#ffffff',
-            fontWeight: 'bold',
+        function formatNumber(num) {
+            if (num < 1000) return num;
+            let suffixes = ["", "k", "M", "B"];
+            let suffixIndex = 0;
+            while (num >= 1000 && suffixIndex < suffixes.length - 1) {
+                suffixIndex++;
+                num /= 1000;
+            }
+            return num.toFixed(2).replace(/\.00$/, '') + suffixes[suffixIndex];
+        }
+
+        document.getElementById('avg-data').textContent = formatNumber(Math.round(averageRequests));
+        document.getElementById('peak-data').textContent = formatNumber(peakRequests);
+        document.getElementById('total-data').textContent = formatNumber(totalRequests);
+
+        Highcharts.chart('chart', {
+          exporting: { enabled: false },
+          chart: {
+            type: 'spline',
+            backgroundColor: 'transparent',
+            animation: false,
           },
-        },
-        xAxis: {
-          categories: Array.from({ length: rpsList.length }, (_, i) => `16:34:${(i * 10 + 30)}`),
-          labels: {
-            style: {
-              color: '#ffffff',
-              fontWeight: 'bold',
-            },
-          },
-        },
-        yAxis: {
           title: {
-            text: '',
-          },
-          labels: {
+            text: 'DSTAT EUIS',
             style: {
-              color: '#ffffff',
+              color: '#fff',
               fontWeight: 'bold',
+            }
+          },
+          xAxis: {
+            labels: {
+              style: {
+                color: '#fff',
+                fontWeight: 'bold'
+              }
             },
+            gridLineWidth: 1,
+            gridLineColor: '#444'
           },
-        },
-        series: [{
-          name: 'Requests Per Second',
-          data: rpsList.map((val) => Math.round(val)),  // Ensure all data points are integers
-          color: '#00ff7f', // Neon Green color for the line
-          lineWidth: 4,
-          marker: {
-            symbol: 'circle',
-            radius: 5,
-            fillColor: '#00ff7f',
+          yAxis: {
+            title: { text: '' },
+            labels: {
+              style: {
+                color: '#fff',
+                fontWeight: 'bold'
+              }
+            },
+            gridLineWidth: 1,
+            gridLineColor: '#444'
           },
-        }],
-        credits: {
-          enabled: false,
-        },
-      });
+          series: [{
+            name: 'Requests Per Second (Bypassed)',
+            data: data,
+            color: 'rgba(255, 169, 48, 0.2)',
+            lineColor: '#ff0061',
+            lineWidth: 4,
+            animation: false,
+          }],
+          legend: {
+            itemStyle: {
+              color: '#fff',
+              fontWeight: 'bold'
+            }
+          },
+          credits: { enabled: false }
+        });
+      };
     </script>
   </body>
 </html>
